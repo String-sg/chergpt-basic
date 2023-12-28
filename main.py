@@ -1,3 +1,4 @@
+import logging
 from openai import OpenAI
 import streamlit as st
 import psycopg2
@@ -20,26 +21,78 @@ with st.sidebar:
 
 
 def connect_to_db():
-    # Use psycopg2 or another PostgreSQL-compatible connector
-    # The connection details should be stored in secrets.toml
-    conn = psycopg2.connect(
-        user=st.secrets["DB_USER"],
-        password=st.secrets["DB_PASSWORD"],
-        host=st.secrets["DB_HOST"],
-        port=st.secrets["DB_PORT"],
-        database=st.secrets["DB_NAME"]
-    )
-    return conn
+    try:
+        conn = psycopg2.connect(
+            st.secrets["DB_CONNECTION"]
+        )
+        logging.info("Successfully connected to the database.")
+        return conn
+    except Exception as e:
+        logging.error(f"Failed to connect to the database: {e}")
+        return None
+
+
+def create_instructions_table_if_not_exists():
+    conn = connect_to_db()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS instructions (
+                    id SERIAL PRIMARY KEY,
+                    content TEXT,
+                    timestamp TIMESTAMP DEFAULT current_timestamp
+                );
+            """)
+            conn.commit()
+            print("Checked for 'instructions' table; created if not exists.")
+    except Exception as e:
+        print(f"Error creating 'instructions' table: {e}")
+    finally:
+        conn.close()
+
+
+create_instructions_table_if_not_exists()
+
+
+def update_instructions(new_instructions):
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO instructions (content) 
+                VALUES (%s)
+                ON CONFLICT (id) 
+                DO UPDATE SET content = EXCLUDED.content;
+            """, (new_instructions,))
+            conn.commit()
+            logging.info("Instructions updated successfully.")
+    except Exception as e:
+        logging.error(f"Error updating instructions: {e}")
+    finally:
+        conn.close()
 
 
 def get_latest_instructions():
     conn = connect_to_db()
-    with conn.cursor() as cur:
-        # Assuming there's an 'id' column
-        cur.execute("SELECT content FROM instructions ORDER BY id DESC LIMIT 1")
-        latest_instructions = cur.fetchone()
-    conn.close()
-    return latest_instructions[0] if latest_instructions else ""
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return ""
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT content FROM instructions ORDER BY id DESC LIMIT 1")
+            latest_instructions = cur.fetchone()
+            return latest_instructions[0] if latest_instructions else ""
+    except Exception as e:
+        logging.error(f"Error fetching latest instructions: {e}")
+        return ""
+    finally:
+        conn.close()
 
 
 # Admin panel for custom instructions
@@ -53,7 +106,7 @@ if st.session_state.get("is_admin"):
         if st.button("Save Instructions"):
             update_instructions(custom_instructions)
             st.success("Instructions updated successfully")
-
+            st.experimental_rerun()
 
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo"
