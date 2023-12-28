@@ -95,6 +95,9 @@ def get_latest_instructions():
         conn.close()
 
 
+existing_instructions = get_latest_instructions()
+
+
 custominstructions_area_height = 300
 
 # Admin panel for custom instructions
@@ -123,24 +126,31 @@ for message in st.session_state.messages:
 
 if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append(
-        {"role": "user", "content": custom_instructions + "" + prompt, })
+        {"role": "user", "content": prompt})
 
     with st.chat_message("user"):
         st.markdown(prompt)
+
+    # Prepend custom instructions to the conversation context for processing
+    conversation_context = [
+        {"role": "system", "content": custom_instructions}] if existing_instructions else []
+    conversation_context += [
+        {"role": m["role"], "content": m["content"]}
+        for m in st.session_state.messages
+    ]
 
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
         for response in client.chat.completions.create(
             model=st.session_state["openai_model"],
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
+            messages=conversation_context,
             stream=True,
         ):
             full_response += (response.choices[0].delta.content or "")
             message_placeholder.markdown(full_response + "▌")
         message_placeholder.markdown(full_response)
+
+    # Append the assistant's response to the messages for display
     st.session_state.messages.append(
         {"role": "assistant", "content": full_response})
