@@ -95,13 +95,16 @@ def get_latest_instructions():
         conn.close()
 
 
+custominstructions_area_height = 300
+
 # Admin panel for custom instructions
 if st.session_state.get("is_admin"):
     with st.sidebar:
         st.title("Admin Panel")
         existing_instructions = get_latest_instructions()
         custom_instructions = st.text_area(
-            "Custom Instructions", value=existing_instructions)
+            "Custom Instructions", value=existing_instructions,
+            height=custominstructions_area_height)
 
         if st.button("Save Instructions"):
             update_instructions(custom_instructions)
@@ -119,7 +122,9 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 if prompt := st.chat_input("What is up?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.session_state.messages.append(
+        {"role": "user", "content": custom_instructions + "" + prompt, })
+
     with st.chat_message("user"):
         st.markdown(prompt)
 
