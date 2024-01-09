@@ -12,12 +12,12 @@ Need to gate access with a simple global password? See [here](https://docs.strea
 ## How to setup backend 
 A) **NeonDB** You can follow instructions on NeonDB here: https://start.open.gov.sg/docs/getting-started/prerequisites <br>
 B) **CockroachDB** <br>
-Create a CockroachDB Serverless cluster (free)<br>
-Sign up for a CockroachDB Cloud account.<br>
-Log in to your CockroachDB Cloud account.<br>
-On the Clusters page, click Create Cluster.<br>
-On the Create your cluster page, select Serverless.<br>
-Click Create cluster.<br>
+* Create a CockroachDB Serverless cluster (free)<br>
+* Sign up for a CockroachDB Cloud account.<br>
+* Log in to your CockroachDB Cloud account.<br>
+* On the Clusters page, click Create Cluster.<br>
+* On the Create your cluster page, select Serverless.<br>
+* Click Create cluster.<br>
 
 Your cluster will be created in a few seconds and the Create SQL user dialog will display.
 
