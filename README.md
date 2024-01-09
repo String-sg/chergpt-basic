@@ -10,7 +10,7 @@ No login, vanilla ChatGPT-like interface with scaffolded code for immediate depl
 Need to gate access with a simple global password? See [here](https://docs.streamlit.io/knowledge-base/deploy/authentication-without-sso) 
 
 ## How to setup backend 
-A) **NeonDB** You can follow instructions on NeonDB here: https://start.open.gov.sg/docs/getting-started/prerequisites
+A) **NeonDB** You can follow instructions on NeonDB here: https://start.open.gov.sg/docs/getting-started/prerequisites <br>
 B) **CockroachDB** <br>
 Create a CockroachDB Serverless cluster (free)<br>
 Sign up for a CockroachDB Cloud account.<br>
