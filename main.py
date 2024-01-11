@@ -5,6 +5,14 @@ import psycopg2
 
 st.title("CherGPT Basic")
 
+# Initialize session state for admin
+if "is_admin" not in st.session_state:
+    st.session_state["is_admin"] = False
+
+# Initialize variables for custom and existing instructions
+custom_instructions = ""
+existing_instructions = ""
+
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 with st.sidebar:
@@ -63,9 +71,9 @@ def update_instructions(new_instructions):
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO instructions (content) 
+                INSERT INTO instructions (content)
                 VALUES (%s)
-                ON CONFLICT (id) 
+                ON CONFLICT (id)
                 DO UPDATE SET content = EXCLUDED.content;
             """, (new_instructions,))
             conn.commit()
@@ -96,6 +104,7 @@ def get_latest_instructions():
 
 
 existing_instructions = get_latest_instructions()
+custom_instructions = existing_instructions
 
 
 custominstructions_area_height = 300
@@ -132,8 +141,11 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(prompt)
 
     # Prepend custom instructions to the conversation context for processing
-    conversation_context = [
-        {"role": "system", "content": custom_instructions}] if existing_instructions else []
+    conversation_context = []
+    if existing_instructions:
+        conversation_context.append(
+            {"role": "system", "content": custom_instructions})
+
     conversation_context += [
         {"role": m["role"], "content": m["content"]}
         for m in st.session_state.messages
