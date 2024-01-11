@@ -1,6 +1,5 @@
 # chergpt-basic: custom chat assistant
 No login, vanilla ChatGPT-like interface with scaffolded code for immediate deployment 
-Test deployment for IMH education office
 
 ## Features
 - [x] Set custom instructions to guide student interactions <br>
