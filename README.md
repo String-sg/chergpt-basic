@@ -3,8 +3,8 @@
 Chergpt-Basic is a simplified, login-free ChatGPT-like interface designed for quick deployment. It allows users to interact with a chat assistant based on OpenAI's GPT-3.5 model. The README provides clear instructions on setting up the backend, customization, and potential use cases.
 
 ## Deployment 
-https://chergpt-physics-lookang.streamlit.app/ from my own forked GitHub 
-https://chergpt-physics-cpdd.streamlit.app/  from Kah How's deployment
+-  https://chergpt-physics-lookang.streamlit.app/ from my own forked GitHub 
+-  https://chergpt-physics-cpdd.streamlit.app/  from Kah How's deployment
 
 ## Features
 - [x] Set custom instructions to guide student interactions.
