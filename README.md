@@ -39,8 +39,8 @@ OPENAI_API_KEY = "sk-Co6R5h4RcT....................................."
 ADMIN_PASSWORD= "passwordyourchoice" 
 DB_CONNECTION = "postgresql://chergpt:PGPASSWORD@ep-weathered-shadow-a1uz6hly.ap-southeast-1.aws.neon.tech/neondb?sslmode=require" 
 ```
-# See [here](https://teachertech.beehiiv.com/p/api-openai) if you're unsure how to create it.
-# Used to gate access for updating custom instructions.
-# Refer to instructions above on **How to Set Up Backend** if unsure.
+- See [here](https://teachertech.beehiiv.com/p/api-openai) if you're unsure how to create it.
+- Used to gate access for updating custom instructions.
+- Refer to instructions above on **How to Set Up Backend** if unsure.
 
 Feel free to explore and enhance the functionality of Chergpt-Basic according to your specific needs!
