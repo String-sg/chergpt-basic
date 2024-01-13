@@ -32,10 +32,10 @@ Your cluster will be created in a few seconds, and the Create SQL user dialog wi
 For either (A) or (B), copy the URL and put it as `DB_CONNECTION = "{DB connection String}"` under `secrets.toml`.
 
 ## Secrets.toml File Structure
-In the `secrets.toml` file, specify three items:
+In the `secrets.toml` file, specify three items: you have to change it to your own
 
 ```toml
-OPENAI_API_KEY = "sk-Co6R5h4RcTTs7aN0ABZ1T3BlbkFJuwBtJqfD4Af.........." 
+OPENAI_API_KEY = "sk-Co6R5h4RcT....................................." 
 ADMIN_PASSWORD= "passwordyourchoice" 
 DB_CONNECTION = "postgresql://chergpt:PGPASSWORD@ep-weathered-shadow-a1uz6hly.ap-southeast-1.aws.neon.tech/neondb?sslmode=require" 
 ```
