@@ -2,6 +2,10 @@
 
 Chergpt-Basic is a simplified, login-free ChatGPT-like interface designed for quick deployment. It allows users to interact with a chat assistant based on OpenAI's GPT-3.5 model. The README provides clear instructions on setting up the backend, customization, and potential use cases.
 
+## Deployment 
+https://chergpt-physics-lookang.streamlit.app/ from my own forked GitHub 
+https://chergpt-physics-cpdd.streamlit.app/  from Kah How's deployment
+
 ## Features
 - [x] Set custom instructions to guide student interactions.
 - [WIP] Trigger immediate summaries of learning insights at the end of the session.
@@ -31,9 +35,12 @@ For either (A) or (B), copy the URL and put it as `DB_CONNECTION = "{DB connecti
 In the `secrets.toml` file, specify three items:
 
 ```toml
-OPENAI_API_KEY = "{api_key}" # See [here](https://teachertech.beehiiv.com/p/api-openai) if you're unsure how to create it.
-DB_CONNECTION = "{db_connection string}" # Refer to instructions above on **How to Set Up Backend** if unsure.
-ADMIN_PASSWORD = "{any password you want}" # Used to gate access for updating custom instructions.
+OPENAI_API_KEY = "sk-Co6R5h4RcTTs7aN0ABZ1T3BlbkFJuwBtJqfD4Af.........." 
+ADMIN_PASSWORD= "passwordyourchoice" 
+DB_CONNECTION = "postgresql://chergpt:PGPASSWORD@ep-weathered-shadow-a1uz6hly.ap-southeast-1.aws.neon.tech/neondb?sslmode=require" 
 ```
+# See [here](https://teachertech.beehiiv.com/p/api-openai) if you're unsure how to create it.
+# Used to gate access for updating custom instructions.
+# Refer to instructions above on **How to Set Up Backend** if unsure.
 
 Feel free to explore and enhance the functionality of Chergpt-Basic according to your specific needs!
