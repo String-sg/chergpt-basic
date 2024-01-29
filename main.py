@@ -200,10 +200,13 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
 def delete_all_chatlogs():
     conn = connect_to_db()
     if conn is None:
+        logging.error("Failed to connect to the database.")
         return
     try:
         with conn, conn.cursor() as cur:
             cur.execute("DELETE FROM chat_logs")
+            conn.commit()
+            logging.info("All chat logs deleted successfully.")
     except Exception as e:
         logging.error(f"Error deleting chat logs: {e}")
     finally:
@@ -303,9 +306,7 @@ if st.session_state.get("is_admin"):
                 mime='text/csv',
             )
         if st.button("Delete All Chat Logs"):
-            if st.sidebar.checkbox("I understand this action is irreversible.", key="delete_confirm"):
-                delete_all_chatlogs()
-                st.sidebar.success("All chat logs deleted successfully.")
+            delete_all_chatlogs()
 
         if st.button("Generate Insights from Recent Chats"):
             recent_chats = fetch_recent_chat_logs(1)  # Last hour
