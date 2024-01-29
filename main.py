@@ -1,10 +1,14 @@
-import logging
-from openai import OpenAI
-import streamlit as st
-import psycopg2
-import csv
-import io
+# main.py
 import datetime
+import io
+import csv
+import psycopg2
+from openai import OpenAI
+import logging
+import streamlit as st
+from sidebar import setup_sidebar
+# from chatbot import process_chat_input
+# from admin_panel import handle_admin_actions
 
 st.title("CherGPT Basic")
 
@@ -12,23 +16,22 @@ st.title("CherGPT Basic")
 if "is_admin" not in st.session_state:
     st.session_state["is_admin"] = False
 
+
+# Set up the sidebar
+setup_sidebar()
+
+# Admin panel actions
+# handle_admin_actions()
+
+# Chatbot interaction
+# process_chat_input()
+
+
 # Initialize variables for custom and existing instructions
 custom_instructions = ""
 existing_instructions = ""
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-with st.sidebar:
-    st.title("Settings")
-    with st.expander("Admin config"):
-        admin_password = st.text_input("Enter Admin Password", type="password")
-
-        if admin_password == st.secrets["ADMIN_PASSWORD"]:
-            st.session_state["is_admin"] = True
-            st.success("Authenticated as Admin")
-        elif admin_password:  # Only display message if something was entered
-            st.error("Incorrect password")
-            st.session_state["is_admin"] = False
 
 
 def connect_to_db():
