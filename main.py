@@ -2,6 +2,7 @@ import logging
 from openai import OpenAI
 import streamlit as st
 import psycopg2
+import csv
 
 st.title("CherGPT Basic")
 
@@ -40,28 +41,44 @@ def connect_to_db():
         return None
 
 
-def create_instructions_table_if_not_exists():
+def initialize_db():
     conn = connect_to_db()
+    if conn is None:
+        return
     try:
-        with conn.cursor() as cur:
+        with conn, conn.cursor() as cur:
+            # Create custom_instructions table
             cur.execute("""
-                CREATE TABLE IF NOT EXISTS instructions (
+                CREATE TABLE IF NOT EXISTS custom_instructions (
                     id SERIAL PRIMARY KEY,
-                    content TEXT,
+                    instructions TEXT,
                     timestamp TIMESTAMP DEFAULT current_timestamp
                 );
             """)
-            conn.commit()
-            print("Checked for 'instructions' table; created if not exists.")
+
+            # Create chat_logs table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS chat_logs (
+                    id SERIAL PRIMARY KEY,
+                    timestamp TIMESTAMP DEFAULT current_timestamp,
+                    prompt TEXT,
+                    response TEXT
+                );
+            """)
     except Exception as e:
-        print(f"Error creating 'instructions' table: {e}")
+        logging.error(f"Error initializing database: {e}")
     finally:
-        conn.close()
+        if conn is not None:
+            conn.close()
 
 
-create_instructions_table_if_not_exists()
+# Call the initialization function at the appropriate place in your application
+initialize_db()
 
 
+# create chatlog
+
+# Create update instructions
 def update_instructions(new_instructions):
     conn = connect_to_db()
     if conn is None:
