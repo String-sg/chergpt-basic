@@ -23,10 +23,10 @@ You can follow instructions on NeonDB [here](https://start.open.gov.sg/docs/gett
 ## Secrets.toml File Structure
 In the `secrets.toml` file, specify three items: you have to change it to your own
 
-```toml
+```
 OPENAI_API_KEY = "sk-Co6R5h4RcT....................................." 
 ADMIN_PASSWORD= "passwordyourchoice" 
-DB_CONNECTION = "postgresql://chergpt:PGPASSWORD@ep-weathered-shadow-a1uz6hly.ap-southeast-1.aws.neon.tech/neondb?sslmode=require" 
+DB_CONNECTION = "postgresql://chergpt:PGPASSWORD@some-details-based-on-connection-string.ap-southeast-1.aws.neon.tech/neondb?sslmode=require" 
 ```
 - See [here](https://teachertech.beehiiv.com/p/api-openai) if you're unsure how to create it.
 - Used to gate access for updating custom instructions.
