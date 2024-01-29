@@ -76,9 +76,43 @@ def initialize_db():
 initialize_db()
 
 
-# create chatlog
+# fetch chatlog
+def fetch_chat_logs():
+    conn = connect_to_db()
+    if conn is None:
+        return []
+    try:
+        with conn, conn.cursor() as cur:
+            cur.execute("SELECT * FROM chat_logs")
+            chat_logs = cur.fetchall()
+            return chat_logs
+    except Exception as e:
+        logging.error(f"Error fetching chat logs: {e}")
+        return []
+    finally:
+        if conn is not None:
+            conn.close()
+
+# export chatlog
+
+
+def export_chat_logs_to_csv(filename='chat_logs.csv'):
+    chat_logs = fetch_chat_logs()
+    if not chat_logs:
+        print("No chat logs to export.")
+        return
+
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        # Writing headers
+        writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response'])
+        writer.writerows(chat_logs)
+
+    print(f"Chat logs exported to {filename}")
 
 # Create update instructions
+
+
 def update_instructions(new_instructions):
     conn = connect_to_db()
     if conn is None:
