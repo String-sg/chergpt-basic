@@ -3,6 +3,8 @@ from openai import OpenAI
 import streamlit as st
 import psycopg2
 import csv
+import io
+import datetime
 
 st.title("CherGPT Basic")
 
@@ -118,6 +120,61 @@ def fetch_chat_logs():
         if conn is not None:
             conn.close()
 
+# fetch past hour chatlog
+
+
+def fetch_recent_chat_logs(hours=1):
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database for fetching logs.")
+        return []
+
+    one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=hours)
+    logging.info(f"Fetching logs from: {one_hour_ago}")
+
+    try:
+        with conn, conn.cursor() as cur:
+            cur.execute("""
+                SELECT * FROM chat_logs 
+                WHERE timestamp >= %s
+            """, (one_hour_ago,))
+            chat_logs = cur.fetchall()
+            logging.info(f"Fetched {len(chat_logs)} chat log records.")
+            return chat_logs
+    except Exception as e:
+        logging.error(f"Error fetching recent chat logs: {e}")
+        return []
+    finally:
+        if conn is not None:
+            conn.close()
+
+# test datetime conversion
+
+
+def test_timestamp_conversion():
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn, conn.cursor() as cur:
+            cur.execute("SELECT timestamp FROM chat_logs LIMIT 1")
+            record = cur.fetchone()
+            if record:
+                print("Timestamp type:", type(record[0]))
+            else:
+                print("No records found.")
+    except Exception as e:
+        logging.error(f"Error fetching a timestamp: {e}")
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+test_timestamp_conversion()
+
+
 # export chatlog
 
 
@@ -127,13 +184,13 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
         print("No chat logs to export.")
         return
 
-    with open(filename, 'w', newline='') as file:
-        writer = csv.writer(file)
-        # Writing headers
-        writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response'])
-        writer.writerows(chat_logs)
-
-    print(f"Chat logs exported to {filename}")
+    # Create a CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+    # Writing headers
+    writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response'])
+    writer.writerows(chat_logs)
+    return output.getvalue()
 
 
 # delete chatlog
@@ -149,6 +206,26 @@ def delete_all_chatlogs():
     finally:
         if conn is not None:
             conn.close()
+
+# insights
+
+
+def generate_insights_with_openai(chat_logs):
+    # Constructing the conversation context for GPT-3.5-turbo
+    conversation_context = [
+        {"role": "system", "content": "Analyze the following chat logs and provide the top 5 insights on how students' questioning techniques could be improved:"}]
+    for log in chat_logs:
+        conversation_context.append({"role": "user", "content": log[2]})
+        conversation_context.append({"role": "assistant", "content": log[3]})
+
+    # Sending the context to OpenAI's GPT-3.5-turbo model
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=conversation_context
+    )
+
+    return response.choices[0].message['content']
+
 
 # Create update instructions
 
@@ -214,14 +291,27 @@ if st.session_state.get("is_admin"):
             update_instructions(custom_instructions)
             st.success("Instructions updated successfully")
             st.experimental_rerun()
-        if st.button("Export Chat Logs"):
-            export_chat_logs_to_csv()
-            st.success("Chat logs exported successfully.")
+        csv_data = export_chat_logs_to_csv()
+        if csv_data:
+            st.download_button(
+                label="Download Chat Logs",
+                data=csv_data,
+                file_name='chat_logs.csv',
+                mime='text/csv',
+            )
         if st.button("Delete All Chat Logs"):
             if st.sidebar.checkbox("I understand this action is irreversible.", key="delete_confirm"):
                 delete_all_chatlogs()
                 st.sidebar.success("All chat logs deleted successfully.")
 
+        if st.button("Generate Insights from Recent Chats"):
+            recent_chats = fetch_recent_chat_logs(1)  # Last hour
+            print(recent_chats)
+            if recent_chats:
+                insights = generate_insights_with_openai(recent_chats)
+                st.write(insights)
+            else:
+                st.write("No recent chats to analyze.")
 
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo"
