@@ -76,15 +76,40 @@ def initialize_db():
 initialize_db()
 
 
+# insert chatlog into DB
+def insert_chat_log(prompt, response):
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn, conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO chat_logs (prompt, response)
+                VALUES (%s, %s)
+            """, (prompt, response))
+            conn.commit()
+            logging.info("Chat log inserted successfully.")
+    except Exception as e:
+        logging.error(f"Error inserting chat log: {e}")
+    finally:
+        if conn is not None:
+            conn.close()
+
 # fetch chatlog
+
+
 def fetch_chat_logs():
     conn = connect_to_db()
     if conn is None:
+        logging.error("Failed to connect to the database for fetching logs.")
         return []
     try:
         with conn, conn.cursor() as cur:
             cur.execute("SELECT * FROM chat_logs")
             chat_logs = cur.fetchall()
+            logging.info(f"Fetched {len(chat_logs)} chat log records.")
             return chat_logs
     except Exception as e:
         logging.error(f"Error fetching chat logs: {e}")
@@ -109,6 +134,21 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
         writer.writerows(chat_logs)
 
     print(f"Chat logs exported to {filename}")
+
+
+# delete chatlog
+def delete_all_chatlogs():
+    conn = connect_to_db()
+    if conn is None:
+        return
+    try:
+        with conn, conn.cursor() as cur:
+            cur.execute("DELETE FROM chat_logs")
+    except Exception as e:
+        logging.error(f"Error deleting chat logs: {e}")
+    finally:
+        if conn is not None:
+            conn.close()
 
 # Create update instructions
 
@@ -160,6 +200,7 @@ custom_instructions = existing_instructions
 
 custominstructions_area_height = 300
 
+
 # Admin panel for custom instructions
 if st.session_state.get("is_admin"):
     with st.sidebar:
@@ -173,6 +214,14 @@ if st.session_state.get("is_admin"):
             update_instructions(custom_instructions)
             st.success("Instructions updated successfully")
             st.experimental_rerun()
+        if st.button("Export Chat Logs"):
+            export_chat_logs_to_csv()
+            st.success("Chat logs exported successfully.")
+        if st.button("Delete All Chat Logs"):
+            if st.sidebar.checkbox("I understand this action is irreversible.", key="delete_confirm"):
+                delete_all_chatlogs()
+                st.sidebar.success("All chat logs deleted successfully.")
+
 
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo"
@@ -212,6 +261,7 @@ if prompt := st.chat_input("What is up?"):
         ):
             full_response += (response.choices[0].delta.content or "")
             message_placeholder.markdown(full_response + "▌")
+        insert_chat_log(prompt, full_response)
         message_placeholder.markdown(full_response)
 
     # Append the assistant's response to the messages for display
