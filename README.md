@@ -15,21 +15,10 @@ Need to secure access with a simple global password? Check the [authentication g
 ## Use Cases
 Chergpt-Basic enables a variety of use cases, with the primary one being the creation of user personas for students to interact with. Examples include historical figures or patients with specific medical conditions.
 
-## How to Set Up Backend
-### A) NeonDB
-Follow the instructions on NeonDB [here](https://start.open.gov.sg/docs/getting-started/prerequisites).
+## How to setup backend 
+We recommend using **NeonDB** 
+You can follow instructions on NeonDB [here](https://start.open.gov.sg/docs/getting-started/prerequisites) <br>
 
-### B) CockroachDB
-1. Create a CockroachDB Serverless cluster (free).
-2. Sign up for a CockroachDB Cloud account.
-3. Log in to your CockroachDB Cloud account.
-4. On the Clusters page, click Create Cluster.
-5. On the Create your cluster page, select Serverless.
-6. Click Create cluster.
-
-Your cluster will be created in a few seconds, and the Create SQL user dialog will display.
-
-For either (A) or (B), copy the URL and put it as `DB_CONNECTION = "{DB connection String}"` under `secrets.toml`.
 
 ## Secrets.toml File Structure
 In the `secrets.toml` file, specify three items: you have to change it to your own
