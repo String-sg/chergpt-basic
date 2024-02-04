@@ -1,6 +1,7 @@
 # for database connection and initialization
 import psycopg2
 import logging
+import streamlit as st
 
 def connect_to_db():
     try:

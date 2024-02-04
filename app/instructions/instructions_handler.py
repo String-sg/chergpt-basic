@@ -1,5 +1,5 @@
 import logging
-from app.db.db import connect_to_db
+from app.db.database_connection import connect_to_db
 
 def get_latest_instructions():
     conn = connect_to_db()
