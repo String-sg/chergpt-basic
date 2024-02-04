@@ -18,15 +18,16 @@ def setup_sidebar():
 
     if st.session_state.get("is_admin", False):
         with st.sidebar:
-            st.title("Admin Panel")
+            st.title("Custom Instructions")
             st.session_state['existing_instructions'] = get_latest_instructions()
-            custom_instructions = st.text_area("Custom Instructions", value=st.session_state['existing_instructions'], height=custominstructions_area_height)
+            custom_instructions = st.text_area("Edit and save to guide interactions", value=st.session_state['existing_instructions'], height=custominstructions_area_height)
 
             if st.button("Save Instructions"):
                 update_instructions(custom_instructions)
                 st.success("Instructions updated successfully")
                 st.experimental_rerun()
-            
+
+            st.title("Chatlog")
             csv_data = export_chat_logs_to_csv()
             if csv_data:
                  st.download_button(label="Download Chat Logs", data=csv_data, file_name='chat_logs.csv', mime='text/csv',)
