@@ -4,8 +4,6 @@ from streamlit.testing.v1 import AppTest
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 
-
-# See https://github.com/openai/openai-python/issues/715#issuecomment-1809203346
 def create_chat_completion(response: str, role: str = "assistant") -> ChatCompletion:
     return ChatCompletion(
         id="foo",
@@ -54,3 +52,43 @@ def test_Langchain_Quickstart(langchain_llm):
     at.button[0].set_value(True).run()
     print(at)
     assert at.info[0].value == RESPONSE
+
+
+    # test datetime conversion
+
+
+def test_timestamp_conversion():
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn, conn.cursor() as cur:
+            cur.execute("SELECT timestamp FROM chat_logs LIMIT 1")
+            record = cur.fetchone()
+            if record:
+                print("Timestamp type:", type(record[0]))
+            else:
+                print("No records found.")
+    except Exception as e:
+        logging.error(f"Error fetching a timestamp: {e}")
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+test_timestamp_conversion()
+
+
+def test_generate_insights_with_openai():
+    # Sample chat logs format: [(id, timestamp, prompt, response), ...]
+    sample_chat_logs = [
+        (1, "2023-04-01 12:00:00", "How does photosynthesis work?", "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water."),
+        # Add more samples as needed
+    ]
+    insights = generate_insights_with_openai(sample_chat_logs)
+    print(insights)
+
+
+test_generate_insights_with_openai()

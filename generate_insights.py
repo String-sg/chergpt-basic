@@ -11,7 +11,7 @@ if st.session_state.get("is_admin"):
         if st.button("Save Instructions"):
             update_instructions(custom_instructions)
             st.success("Instructions updated successfully")
-            st.experimental_rerun()
+            st.rerun()
         csv_data = export_chat_logs_to_csv()
         if csv_data:
             st.download_button(

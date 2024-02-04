@@ -1,6 +1,4 @@
-# imports
 import datetime
-import io
 import csv
 import psycopg2
 from openai import OpenAI
@@ -8,6 +6,8 @@ import logging
 import streamlit as st
 from sidebar import setup_sidebar
 from app.db.db import initialize_db, connect_to_db
+from utils import get_latest_instructions, update_instructions, export_chat_logs_to_csv, delete_all_chatlogs, custom_instructions, existing_instructions
+
 # from chatbot import process_chat_input
 # from admin_panel import handle_admin_actions
 
@@ -26,10 +26,6 @@ initialize_db()
 # handle_admin_actions()
 # Chatbot interaction
 # process_chat_input()
-
-# Initialize variables for custom and existing instructions
-custom_instructions = ""
-existing_instructions = ""
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -101,69 +97,11 @@ def fetch_recent_chat_logs(hours=1):
         if conn is not None:
             conn.close()
 
-# test datetime conversion
-
-
-def test_timestamp_conversion():
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database.")
-        return
-
-    try:
-        with conn, conn.cursor() as cur:
-            cur.execute("SELECT timestamp FROM chat_logs LIMIT 1")
-            record = cur.fetchone()
-            if record:
-                print("Timestamp type:", type(record[0]))
-            else:
-                print("No records found.")
-    except Exception as e:
-        logging.error(f"Error fetching a timestamp: {e}")
-    finally:
-        if conn is not None:
-            conn.close()
-
-
-test_timestamp_conversion()
 # export chatlog
 
 
-def export_chat_logs_to_csv(filename='chat_logs.csv'):
-    chat_logs = fetch_chat_logs()
-    if not chat_logs:
-        print("No chat logs to export.")
-        return
-
-    # Create a CSV in memory
-    output = io.StringIO()
-    writer = csv.writer(output)
-    # Writing headers
-    writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response'])
-    writer.writerows(chat_logs)
-    return output.getvalue()
-
-
-# delete chatlog
-def delete_all_chatlogs():
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database.")
-        return
-    try:
-        with conn, conn.cursor() as cur:
-            cur.execute("DELETE FROM chat_logs")
-            conn.commit()
-            logging.info("All chat logs deleted successfully.")
-    except Exception as e:
-        logging.error(f"Error deleting chat logs: {e}")
-    finally:
-        if conn is not None:
-            conn.close()
 
 # insights
-
-
 def generate_insights_with_openai(chat_logs):
     # Constructing the conversation context for GPT-3.5-turbo
     conversation_context = [
@@ -188,67 +126,7 @@ def generate_insights_with_openai(chat_logs):
 
 
 
-def test_generate_insights_with_openai():
-    # Sample chat logs format: [(id, timestamp, prompt, response), ...]
-    sample_chat_logs = [
-        (1, "2023-04-01 12:00:00", "How does photosynthesis work?", "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water."),
-        # Add more samples as needed
-    ]
-    insights = generate_insights_with_openai(sample_chat_logs)
-    print(insights)
 
-
-test_generate_insights_with_openai()
-
-# Create update instructions
-
-
-def update_instructions(new_instructions):
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database.")
-        return
-
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO instructions (content)
-                VALUES (%s)
-                ON CONFLICT (id)
-                DO UPDATE SET content = EXCLUDED.content;
-            """, (new_instructions,))
-            conn.commit()
-            logging.info("Instructions updated successfully.")
-    except Exception as e:
-        logging.error(f"Error updating instructions: {e}")
-    finally:
-        conn.close()
-
-
-def get_latest_instructions():
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database.")
-        return ""
-
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT content FROM instructions ORDER BY id DESC LIMIT 1")
-            latest_instructions = cur.fetchone()
-            return latest_instructions[0] if latest_instructions else ""
-    except Exception as e:
-        logging.error(f"Error fetching latest instructions: {e}")
-        return ""
-    finally:
-        conn.close()
-
-
-existing_instructions = get_latest_instructions()
-custom_instructions = existing_instructions
-
-
-custominstructions_area_height = 300
 
 
 

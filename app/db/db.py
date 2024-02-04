@@ -1,3 +1,4 @@
+# for database connection and initialization
 import psycopg2
 import logging
 
