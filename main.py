@@ -4,19 +4,23 @@ import logging
 import streamlit as st
 from sidebar import setup_sidebar
 from app.db.database_connection import initialize_db, connect_to_db
+from app.instructions.instructions_handler import get_latest_instructions
 # from chatbot import process_chat_input
 # from admin_panel import handle_admin_actions
 
 st.title("CherGPT Basic")
-"""Teaching and learning companion"""
 # Initialize session state for admin
-if "is_admin" not in st.session_state:
-    st.session_state["is_admin"] = False
-
-
 # Set up the sidebar and initialize DB
-setup_sidebar()
 initialize_db()
+
+def setup_app():
+    # Ensure get_latest_instructions is called once and stored
+    if 'existing_instructions' not in st.session_state:
+        st.session_state['existing_instructions'] = get_latest_instructions()
+    setup_sidebar()
+
+setup_app()
+
 
 # Tech debt to refactor admin panel actions
 # handle_admin_actions()
@@ -24,6 +28,7 @@ initialize_db()
 # process_chat_input()
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
 
 # insert chatlog into DB
 def insert_chat_log(prompt, response):
@@ -120,11 +125,10 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Prepend custom instructions to the conversation context for processing
     conversation_context = []
-    if existing_instructions:
+    if 'existing_instructions' in st.session_state:
         conversation_context.append(
-            {"role": "system", "content": custom_instructions})
+            {"role": "system", "content": st.session_state['existing_instructions']})
 
     conversation_context += [
         {"role": m["role"], "content": m["content"]}

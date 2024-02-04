@@ -7,7 +7,7 @@ def setup_sidebar():
     with st.sidebar:
         st.title("Settings")
         with st.expander("Admin config"):
-            admin_password = st.text_input("Enter Admin Password", type="password")
+            admin_password = st.text_input("Enter Admin Password", type="password", key="admin_password")
             if admin_password == st.secrets["ADMIN_PASSWORD"]:
                 st.session_state["is_admin"] = True
                 st.success("Authenticated as Admin")
@@ -15,13 +15,12 @@ def setup_sidebar():
                 st.error("Incorrect password")
                 st.session_state["is_admin"] = False
 
-    # This section should be outside the setup_sidebar function
     # but still under the condition checking st.session_state.get("is_admin")
-    if st.session_state.get("is_admin", False):  # Ensure default to False if not set
+    if st.session_state.get("is_admin", False):
         with st.sidebar:
             st.title("Admin Panel")
-            existing_instructions = get_latest_instructions()
-            custom_instructions = st.text_area("Custom Instructions", value=existing_instructions, height=custominstructions_area_height)
+            st.session_state['existing_instructions'] = get_latest_instructions()
+            custom_instructions = st.text_area("Custom Instructions", value=st.session_state['existing_instructions'], height=custominstructions_area_height)
 
             if st.button("Save Instructions"):
                 update_instructions(custom_instructions)
@@ -43,5 +42,3 @@ def setup_sidebar():
             #     else:
             #         st.write("No recent chats to analyze.")
 
-# Call the function to setup sidebar
-setup_sidebar()
