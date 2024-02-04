@@ -11,7 +11,7 @@ from sidebar import setup_sidebar
 # from admin_panel import handle_admin_actions
 
 st.title("CherGPT Basic")
-
+"""Teaching and learning companion"""
 # Initialize session state for admin
 if "is_admin" not in st.session_state:
     st.session_state["is_admin"] = False
@@ -176,8 +176,6 @@ def test_timestamp_conversion():
 
 
 test_timestamp_conversion()
-
-
 # export chatlog
 
 
@@ -224,14 +222,33 @@ def generate_insights_with_openai(chat_logs):
         conversation_context.append({"role": "user", "content": log[2]})
         conversation_context.append({"role": "assistant", "content": log[3]})
 
-    # Sending the context to OpenAI's GPT-3.5-turbo model
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=conversation_context
-    )
+    # Sending the context to OpenAI's GPT-3.5-turbo model using the 'client' object
+    try:
+        response = client.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=conversation_context
+        )
+        return response.choices[0].message['content']
+    except Exception as e:
+        logging.error(f"Error generating insights with OpenAI: {e}")
+        # Consider also logging the conversation context to debug further
+        logging.debug(f"Failed conversation context: {conversation_context}")
+        return "Error generating insights."
 
-    return response.choices[0].message['content']
 
+
+
+def test_generate_insights_with_openai():
+    # Sample chat logs format: [(id, timestamp, prompt, response), ...]
+    sample_chat_logs = [
+        (1, "2023-04-01 12:00:00", "How does photosynthesis work?", "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water."),
+        # Add more samples as needed
+    ]
+    insights = generate_insights_with_openai(sample_chat_logs)
+    print(insights)
+
+
+test_generate_insights_with_openai()
 
 # Create update instructions
 
@@ -284,38 +301,6 @@ custom_instructions = existing_instructions
 custominstructions_area_height = 300
 
 
-# Admin panel for custom instructions
-if st.session_state.get("is_admin"):
-    with st.sidebar:
-        st.title("Admin Panel")
-        existing_instructions = get_latest_instructions()
-        custom_instructions = st.text_area(
-            "Custom Instructions", value=existing_instructions,
-            height=custominstructions_area_height)
-
-        if st.button("Save Instructions"):
-            update_instructions(custom_instructions)
-            st.success("Instructions updated successfully")
-            st.experimental_rerun()
-        csv_data = export_chat_logs_to_csv()
-        if csv_data:
-            st.download_button(
-                label="Download Chat Logs",
-                data=csv_data,
-                file_name='chat_logs.csv',
-                mime='text/csv',
-            )
-        if st.button("Delete All Chat Logs"):
-            delete_all_chatlogs()
-
-        if st.button("Generate Insights from Recent Chats"):
-            recent_chats = fetch_recent_chat_logs(1)  # Last hour
-            print(recent_chats)
-            if recent_chats:
-                insights = generate_insights_with_openai(recent_chats)
-                st.write(insights)
-            else:
-                st.write("No recent chats to analyze.")
 
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo"
