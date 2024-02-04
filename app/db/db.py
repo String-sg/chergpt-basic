@@ -1,7 +1,7 @@
 import psycopg2
 import logging
 
-def connect_to_db(st):
+def connect_to_db():
     try:
         conn = psycopg2.connect(st.secrets["DB_CONNECTION"])
         logging.info("Successfully connected to the database. This is NeonDB if you followed the setup instructions")
@@ -10,8 +10,8 @@ def connect_to_db(st):
         logging.error(f"Failed to connect to the database: {e}")
         return None
 
-def initialize_db(st):
-    conn = connect_to_db(st)
+def initialize_db():
+    conn = connect_to_db()
     if conn is None:
         return
     try:
