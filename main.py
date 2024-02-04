@@ -1,113 +1,27 @@
-import datetime
 from openai import OpenAI
-import logging
 import streamlit as st
+from app.chatlog.chatlog_handler import insert_chat_log
 from sidebar import setup_sidebar
-from app.db.database_connection import initialize_db, connect_to_db
+from app.db.database_connection import initialize_db
 from app.instructions.instructions_handler import get_latest_instructions
-# from chatbot import process_chat_input
-# from admin_panel import handle_admin_actions
 
+# Title for now, no need subtitles. Can consider loading title/ subtitle from DB and enable users to edit
 st.title("CherGPT Basic")
-# Initialize session state for admin
+
 # Set up the sidebar and initialize DB
 initialize_db()
 
+# Ensure get_latest_instructions is called once and stored
 def setup_app():
-    # Ensure get_latest_instructions is called once and stored
     if 'existing_instructions' not in st.session_state:
         st.session_state['existing_instructions'] = get_latest_instructions()
     setup_sidebar()
 
 setup_app()
 
-
-# Tech debt to refactor admin panel actions
-# handle_admin_actions()
-# Chatbot interaction
-# process_chat_input()
-
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-
-# insert chatlog into DB
-def insert_chat_log(prompt, response):
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database.")
-        return
-
-    try:
-        with conn, conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO chat_logs (prompt, response)
-                VALUES (%s, %s)
-            """, (prompt, response))
-            conn.commit()
-            logging.info("Chat log inserted successfully.")
-    except Exception as e:
-        logging.error(f"Error inserting chat log: {e}")
-    finally:
-        if conn is not None:
-            conn.close()
-
-# fetch chatlog
-def fetch_chat_logs():
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database for fetching logs.")
-        return []
-    try:
-        with conn, conn.cursor() as cur:
-            cur.execute("SELECT * FROM chat_logs")
-            chat_logs = cur.fetchall()
-            logging.info(f"Fetched {len(chat_logs)} chat log records.")
-            return chat_logs
-    except Exception as e:
-        logging.error(f"Error fetching chat logs: {e}")
-        return []
-    finally:
-        if conn is not None:
-            conn.close()
-
-# fetch past hour chatlog
-
-
-def fetch_recent_chat_logs(hours=1):
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database for fetching logs.")
-        return []
-
-    one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=hours)
-    logging.info(f"Fetching logs from: {one_hour_ago}")
-
-    try:
-        with conn, conn.cursor() as cur:
-            cur.execute("""
-                SELECT * FROM chat_logs 
-                WHERE timestamp >= %s
-            """, (one_hour_ago,))
-            chat_logs = cur.fetchall()
-            logging.info(f"Fetched {len(chat_logs)} chat log records.")
-            return chat_logs
-    except Exception as e:
-        logging.error(f"Error fetching recent chat logs: {e}")
-        return []
-    finally:
-        if conn is not None:
-            conn.close()
-
-# export chatlog
-
-
-
-
-
-
-
-
-
+#chatbot
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo"
 
