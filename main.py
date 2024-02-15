@@ -1,6 +1,7 @@
 from openai import OpenAI
 import streamlit as st
 from app.chatlog.chatlog_handler import insert_chat_log
+from app.db.database_connection import initialize_db
 from sidebar import setup_sidebar
 # from app.db.database_connection import drop_instructions_table, initialize_db
 from app.instructions.instructions_handler import get_latest_instructions
