@@ -9,7 +9,8 @@ def get_latest_instructions():
 
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT content FROM instructions ORDER BY id DESC LIMIT 1")
+            cur.execute(
+                "SELECT content FROM instructions ORDER BY id DESC LIMIT 1")
             latest_instructions = cur.fetchone()
             return latest_instructions[0] if latest_instructions else ""
     except Exception as e:

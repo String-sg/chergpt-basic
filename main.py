@@ -2,14 +2,19 @@ from openai import OpenAI
 import streamlit as st
 from app.chatlog.chatlog_handler import insert_chat_log
 from sidebar import setup_sidebar
-from app.db.database_connection import initialize_db
+# from app.db.database_connection import drop_instructions_table, initialize_db
 from app.instructions.instructions_handler import get_latest_instructions
 
 # Title for now, no need subtitles. Can consider loading title/ subtitle from DB and enable users to edit
 st.title("CherGPT Basic")
 
 # Set up the sidebar and initialize DB
-initialize_db()
+if 'db_initialized' not in st.session_state:
+    initialize_db()
+    st.session_state['db_initialized'] = True
+    
+# if st.button("Drop Instructions Table"):
+#    drop_instructions_table()
 
 # Ensure get_latest_instructions is called once and stored
 def setup_app():
