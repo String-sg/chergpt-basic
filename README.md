@@ -31,7 +31,7 @@ We recommend using **NeonDB**, start [here](https://console.neon.tech/) <br>
 ![image](https://github.com/String-sg/chergpt-basic/assets/44336310/c4921ffc-15ec-48d2-a4ba-8dec02ef66c1)
 <br>
 2. Create a free project with Singapore as the region. Pick any project and database name you like. 
-![image](https://github.com/String-sg/chergpt-basic/assets/44336310/735f8cd0-5715-4ce8-8f6d-54c1ef9f3649)
+![image](https://github.com/String-sg/chergpt-basic/assets/44336310/f5a3f4f3-dfb1-440d-959b-d71c5a6b00e2)
 
 3. Click on the copy icon - this will give you your database (DB) connection String that allows you to store data persistently in CherGPT.<br>
 Keep this somewhere safe, you will also need to use this shortly.
