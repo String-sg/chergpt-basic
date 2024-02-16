@@ -32,7 +32,7 @@ We recommend using **NeonDB**, start [here](https://console.neon.tech/) <br>
 <br>
 2. Create a free project with Singapore as the region. Pick any project and database name you like. <br>
 ![image](https://github.com/String-sg/chergpt-basic/assets/44336310/f5a3f4f3-dfb1-440d-959b-d71c5a6b00e2)
-
+<br>
 3. Click on the copy icon - this will give you your database (DB) connection String that allows you to store data persistently in CherGPT.<br>
 Keep this somewhere safe, you will also need to use this shortly.
 
@@ -40,7 +40,7 @@ Keep this somewhere safe, you will also need to use this shortly.
 - See [here](https://teachertech.beehiiv.com/p/api-openai) if you're unsure how to create it.<br>
 Keep this somewhere safe, you will also need to use this shortly.
 
-##3 Deploying to Streamlit
+## 3 Deploying to Streamlit
 1. Create a streamlit account [here](https://streamlit.io/)
 ## Secrets.toml File Structure
 In the `secrets.toml` file, specify three items: you have to change it to your own
