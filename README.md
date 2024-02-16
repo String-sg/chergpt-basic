@@ -1,7 +1,7 @@
 # Chergpt-Basic: Custom Chat Assistant
 Chergpt-Basic is a simplified, login-free ChatGPT-like interface designed for quick deployment. It allows users to interact with a chat assistant based on OpenAI's GPT-3.5/ GPT-4 model and for teachers to customize instruct
 
-![image](https://github.com/String-sg/chergpt-basic/assets/44336310/df396b31-d91e-4660-900e-eff5c3a89c1e)
+![image](https://github.com/String-sg/chergpt-basic/assets/44336310/6e6f506d-d849-4116-9c9a-20b578b88040)
 
 ## Deployment - examples
 -  https://chergpt-physics-lookang.streamlit.app/ from my own forked GitHub 
