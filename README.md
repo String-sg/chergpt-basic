@@ -1,6 +1,7 @@
 # Chergpt-Basic: Custom Chat Assistant
+Chergpt-Basic is a simplified, login-free ChatGPT-like interface designed for quick deployment. It allows users to interact with a chat assistant based on OpenAI's GPT-3.5/ GPT-4 model and for teachers to customize instruct
 
-Chergpt-Basic is a simplified, login-free ChatGPT-like interface designed for quick deployment. It allows users to interact with a chat assistant based on OpenAI's GPT-3.5/ GPT-4 model. 
+![image](https://github.com/String-sg/chergpt-basic/assets/44336310/f87a77bc-4598-4730-ac7f-70c0f83f55b6)
 
 ## Deployment - examples
 -  https://chergpt-physics-lookang.streamlit.app/ from my own forked GitHub 
@@ -8,7 +9,10 @@ Chergpt-Basic is a simplified, login-free ChatGPT-like interface designed for qu
 
 ## Features
 - [x] Set custom instructions to guide student interactions.
-- [WIP] Trigger immediate summaries of learning insights at the end of the session.
+- [x] Download chatlogs
+- [ ] Toggle between GPT-3.5/4 and other models via front-end 
+- [ ] Generate learning/ teaching analytics based on chatlogs
+- [ ] Enable learners to 'end' session and receive insights via email (while sending a copy to the teacher)
 
 Need to secure access with a simple global password? Check the [authentication guide](https://docs.streamlit.io/knowledge-base/deploy/authentication-without-sso).
 
@@ -27,7 +31,8 @@ We recommend using **NeonDB**, start [here](https://console.neon.tech/) <br>
 ![image](https://github.com/String-sg/chergpt-basic/assets/44336310/c4921ffc-15ec-48d2-a4ba-8dec02ef66c1)
 <br>
 2. Create a free project with Singapore as the region. Pick any project and database name you like. 
-![image](https://github.com/String-sg/chergpt-basic/assets/44336310/69ea2458-4a6f-4591-a791-d4a9c22fa389)
+![image](https://github.com/String-sg/chergpt-basic/assets/44336310/735f8cd0-5715-4ce8-8f6d-54c1ef9f3649)
+
 3. Click on the copy icon - this will give you your database (DB) connection String that allows you to store data persistently in CherGPT.<br>
 Keep this somewhere safe, you will also need to use this shortly.
 
