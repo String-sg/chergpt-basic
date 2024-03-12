@@ -8,7 +8,7 @@ import logging
 import streamlit as st
 from app.chatlog.chatlog_handler import insert_chat_log
 from sidebar import setup_sidebar
-from app.db.database_connection import connect_to_db, init_db_connection_pool, release_db_connection
+from app.db.database_connection import connect_to_db, initialize_db
 from app.instructions.instructions_handler import get_latest_instructions
 
 st.title("CherGPT Basic")
@@ -34,8 +34,10 @@ existing_instructions = ""
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+
 # Call the initialization function at the appropriate place in your application
-init_db_connection_pool()
+initialize_db()
+
 
 # insert chatlog into DB
 def insert_chat_log(prompt, response):
@@ -55,7 +57,8 @@ def insert_chat_log(prompt, response):
     except Exception as e:
         logging.error(f"Error inserting chat log: {e}")
     finally:
-        release_db_connection(conn)
+        if conn is not None:
+            conn.close()
 
 # fetch chatlog
 
