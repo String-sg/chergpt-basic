@@ -140,4 +140,3 @@ def delete_all_chatlogs():
     finally:
         if conn is not None:
             conn.close()
-

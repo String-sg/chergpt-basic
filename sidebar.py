@@ -25,7 +25,7 @@ def setup_sidebar():
             if st.button("Save Instructions"):
                 update_instructions(custom_instructions)
                 st.success("Instructions updated successfully")
-                st.experimental_rerun()
+                st.rerun()
 
             st.title("Chatlog")
             csv_data = export_chat_logs_to_csv()
