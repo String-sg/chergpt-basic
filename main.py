@@ -5,7 +5,7 @@ import csv
 from openai import OpenAI
 import logging
 import streamlit as st
-from app.chatlog.chatlog_handler import insert_chat_log
+from app.chatlog.chatlog_handler import insert_chat_log, initialize_chatlog_table
 from sidebar import setup_sidebar
 from app.db.database_connection import connect_to_db, initialize_db
 from app.instructions.instructions_handler import get_latest_instructions
@@ -18,6 +18,7 @@ if "is_admin" not in st.session_state:
 
 # Set up the sidebar
 setup_sidebar()
+initialize_chatlog_table()
 
 # Admin panel actions
 # handle_admin_actions()

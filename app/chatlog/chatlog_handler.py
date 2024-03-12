@@ -4,9 +4,9 @@ import logging
 from app.db.database_connection import connect_to_db
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import uuid
 
-
-def insert_chat_log(prompt, response):
+def insert_chat_log(prompt, response, conversation_id):
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
@@ -14,13 +14,14 @@ def insert_chat_log(prompt, response):
 
     # Get current time in GMT+8 timezone
     now_in_sgt = datetime.now(ZoneInfo("Asia/Singapore"))
+    conversation_uuid = uuid.UUID(conversation_id)  # Ensure it's a valid UUID
 
     try:
         with conn, conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO chat_logs (prompt, response, timestamp)
-                VALUES (%s, %s, %s)
-            """, (prompt, response, now_in_sgt))
+                INSERT INTO chat_logs (prompt, response, timestamp, conversation_id)
+                VALUES (%s, %s, %s, %s)
+            """, (prompt, response, now_in_sgt, conversation_uuid))
             conn.commit()
             logging.info("Chat log inserted successfully.")
     except Exception as e:
@@ -29,10 +30,33 @@ def insert_chat_log(prompt, response):
         if conn is not None:
             conn.close()
 
+def initialize_chatlog_table():
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS chat_logs (
+                    id SERIAL PRIMARY KEY,
+                    timestamp TIMESTAMP DEFAULT current_timestamp,
+                    prompt TEXT,
+                    response TEXT,
+                    conversation_id UUID
+                );
+            """)
+            conn.commit()
+            logging.info("Chatlog table (re)created successfully.")
+    except Exception as e:
+        logging.error(f"Error (re)creating chatlog table: {e}")
+    finally:
+        if conn:
+            conn.close()
+
 
 # fetch chatlog
-
-
 def fetch_chat_logs():
     conn = connect_to_db()
     if conn is None:
@@ -118,10 +142,10 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
     # Create a CSV in memory with UTF-8 encoding
     output = io.StringIO()
     writer = csv.writer(output)
-    # Writing headers
-    writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response'])
+    # Adjusted headers to match expected database columns
+    writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response', 'ConversationID'])
     writer.writerows(chat_logs)
-    
+
     # Return the CSV content encoded in UTF-8
     return output.getvalue().encode('utf-8-sig')
 
@@ -139,6 +163,23 @@ def delete_all_chatlogs():
             logging.info("All chat logs deleted successfully.")
     except Exception as e:
         logging.error(f"Error deleting chat logs: {e}")
+    finally:
+        if conn is not None:
+            conn.close()
+
+def drop_chatlog_table():
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+    
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DROP TABLE IF EXISTS chat_logs;")
+            conn.commit()
+            logging.info("Chatlog table dropped successfully.")
+    except Exception as e:
+        logging.error(f"Error dropping chatlog table: {e}")
     finally:
         if conn is not None:
             conn.close()

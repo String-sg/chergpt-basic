@@ -1,7 +1,7 @@
 import streamlit as st
-from app.chatlog.chatlog_handler import delete_all_chatlogs, export_chat_logs_to_csv
+from app.chatlog.chatlog_handler import delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
-
+from app.db.database_connection import  drop_instructions_table
 custominstructions_area_height = 300
 
 def setup_sidebar():
@@ -27,10 +27,19 @@ def setup_sidebar():
                 st.success("Instructions updated successfully")
                 st.rerun()
 
+            if st.button("Drop instructions table"):
+                drop_instructions_table()
+                st.success("Instructions table dropped")
+                st.rerun()
+
             st.title("Chatlog")
             csv_data = export_chat_logs_to_csv()
             if csv_data:
                  st.download_button(label="Download Chat Logs", data=csv_data, file_name='chat_logs.csv', mime='text/csv',)
             if st.button("Delete All Chat Logs"):
                  delete_all_chatlogs()
+            if st.button("Drop chatlog table"):
+                drop_chatlog_table()
+                st.success("Chatlog table dropped")
+                st.rerun()
 
