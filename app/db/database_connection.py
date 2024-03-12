@@ -36,6 +36,7 @@ def initialize_db():
         return
     try:
         with conn.cursor() as cur:
+            # Initialize instructions table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS instructions (
                     id SERIAL PRIMARY KEY,
@@ -43,6 +44,22 @@ def initialize_db():
                     timestamp TIMESTAMP DEFAULT current_timestamp
                 );
             """)
+
+            # Initialize app_info table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS app_info (
+                    id SERIAL PRIMARY KEY,
+                    description TEXT
+                );
+            """)
+            
+            # Ensure there is always one row in app_info to update
+            cur.execute("""
+                INSERT INTO app_info (id, description)
+                VALUES (1, 'Chatbot to support teaching and learning.')
+                ON CONFLICT (id) DO NOTHING;
+            """)
+
         conn.commit()
     except Exception as e:
         logging.error(f"Error initializing database: {e}")
@@ -50,3 +67,44 @@ def initialize_db():
         if conn:
             conn.close()
 
+
+def get_app_description():
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return "Default app description here."
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT description FROM app_info WHERE id = 1;")
+            description = cur.fetchone()
+            if description:
+                return description[0]
+            else:
+                return "Chatbot to support teaching and learning."
+    except Exception as e:
+        logging.error(f"Error fetching app description: {e}")
+        return "Chatbot to support teaching and learning."
+    finally:
+        if conn:
+            conn.close()
+
+
+def update_app_description(new_description):
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE app_info SET description = %s WHERE id = 1;
+            """, (new_description,))
+            conn.commit()
+            logging.info("App description updated successfully.")
+    except Exception as e:
+        logging.error(f"Error updating app description: {e}")
+    finally:
+        if conn:
+            conn.close()

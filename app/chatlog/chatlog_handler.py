@@ -11,11 +11,11 @@ def insert_chat_log(prompt, response, conversation_id):
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
-
+    if not conversation_id:
+        conversation_id = str(uuid.uuid4())
     # Get current time in GMT+8 timezone
     now_in_sgt = datetime.now(ZoneInfo("Asia/Singapore"))
-    conversation_uuid = uuid.UUID(conversation_id)  # Ensure it's a valid UUID
-
+    conversation_uuid = str(uuid.UUID(conversation_id)) 
     try:
         with conn, conn.cursor() as cur:
             cur.execute("""
@@ -132,23 +132,25 @@ def fetch_recent_chat_logs(hours=1):
             conn.close()
 
 
-
 def export_chat_logs_to_csv(filename='chat_logs.csv'):
     chat_logs = fetch_chat_logs()
     if not chat_logs:
         print("No chat logs to export.")
         return
-
     # Create a CSV in memory with UTF-8 encoding
     output = io.StringIO()
     writer = csv.writer(output)
-    # Adjusted headers to match expected database columns
+    # Ensure headers match the database columns, including 'ConversationID'
     writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response', 'ConversationID'])
-    writer.writerows(chat_logs)
+    # Iterate through each chat log entry and write to CSV
+    for log in chat_logs:
+        writer.writerow(log)  # Directly write the log as it should match the headers
 
     # Return the CSV content encoded in UTF-8
     return output.getvalue().encode('utf-8-sig')
 
+chat_logs = fetch_chat_logs()
+# print(chat_logs[0])
 
 # delete chatlog
 def delete_all_chatlogs():
