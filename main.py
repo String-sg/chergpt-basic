@@ -2,7 +2,6 @@
 import datetime
 import io
 import csv
-import psycopg2
 from openai import OpenAI
 import logging
 import streamlit as st
@@ -16,7 +15,6 @@ st.title("CherGPT Basic")
 # Initialize session state for admin
 if "is_admin" not in st.session_state:
     st.session_state["is_admin"] = False
-
 
 # Set up the sidebar
 setup_sidebar()
