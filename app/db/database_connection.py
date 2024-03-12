@@ -1,42 +1,19 @@
-# databaseconnection.py
+# for database connection and initialization
 import psycopg2
-import psycopg2.pool
 import logging
 import streamlit as st
 
-# Initialize a connection pool globally
-db_pool = None
-
-def init_db_connection_pool():
-    global db_pool
-    if db_pool is None:
-        try:
-            db_pool = psycopg2.pool.SimpleConnectionPool(1, 20, st.secrets["DB_CONNECTION"])
-            logging.info("Database connection pool was successfully created.")
-        except Exception as e:
-            logging.error(f"Failed to create a database connection pool: {e}")
-            db_pool = None
-
-def get_db_connection():
-    if db_pool:
-        return db_pool.getconn()
-    else:
-        logging.error("Database connection pool is not available.")
+def connect_to_db():
+    try:
+        conn = psycopg2.connect(st.secrets["DB_CONNECTION"])
+        logging.info("Successfully connected to the database. This is NeonDB if you followed the setup instructions")
+        return conn
+    except Exception as e:
+        logging.error(f"Failed to connect to the database: {e}")
         return None
 
-def release_db_connection(conn):
-    if db_pool and conn:
-        db_pool.putconn(conn)
-
-# Amend existing functions to use get_db_connection and release_db_connection
-def connect_to_db():
-    conn = get_db_connection()
-    if not conn:
-        logging.error("Failed to connect to the database via connection pool.")
-    return conn
-
 def drop_instructions_table():
-    conn = get_db_connection()  # Use the updated method to get a db connection
+    conn = connect_to_db()
     if conn is None:
         st.error("Failed to connect to the database.")
         return
@@ -50,11 +27,11 @@ def drop_instructions_table():
         logging.error(f"Error dropping instructions table: {e}")
         st.error(f"Error dropping instructions table: {e}")
     finally:
-        release_db_connection(conn)  # Release the connection back to the pool
-
+        if conn:
+            conn.close()
 
 def initialize_db():
-    conn = get_db_connection()  
+    conn = connect_to_db()
     if conn is None:
         return
     try:
@@ -70,5 +47,6 @@ def initialize_db():
     except Exception as e:
         logging.error(f"Error initializing database: {e}")
     finally:
-        release_db_connection(conn) 
+        if conn:
+            conn.close()
 
