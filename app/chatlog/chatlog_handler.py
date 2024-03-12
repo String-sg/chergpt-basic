@@ -115,13 +115,15 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
         print("No chat logs to export.")
         return
 
-    # Create a CSV in memory
+    # Create a CSV in memory with UTF-8 encoding
     output = io.StringIO()
     writer = csv.writer(output)
     # Writing headers
     writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response'])
     writer.writerows(chat_logs)
-    return output.getvalue()
+    
+    # Return the CSV content encoded in UTF-8
+    return output.getvalue().encode('utf-8-sig')
 
 
 # delete chatlog
