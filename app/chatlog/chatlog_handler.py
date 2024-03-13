@@ -147,9 +147,6 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
     # Return the CSV content encoded in UTF-8
     return output.getvalue().encode('utf-8-sig')
 
-chat_logs = fetch_chat_logs()
-# print(chat_logs[0])
-
 # delete chatlog
 def delete_all_chatlogs():
     conn = connect_to_db()

@@ -38,7 +38,7 @@ def setup_sidebar():
                     st.success("Instructions updated successfully")
                     st.rerun()
 
-            with st.expander("💬 Chatlog"):
+            with st.expander("💬 Chatlog and insights"):
                 csv_data = export_chat_logs_to_csv()
                 if csv_data:
                     st.download_button(label="Download Chat Logs", data=csv_data, file_name='chat_logs.csv', mime='text/csv',)
