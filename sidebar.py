@@ -1,7 +1,7 @@
 import streamlit as st
 from app.chatlog.chatlog_handler import delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
-from app.db.database_connection import  drop_instructions_table, get_app_description
+from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description
 custominstructions_area_height = 300
 app_description = get_app_description()
 
