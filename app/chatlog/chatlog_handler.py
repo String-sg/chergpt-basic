@@ -75,56 +75,26 @@ def fetch_chat_logs():
         if conn is not None:
             conn.close()
 
-# fetch past hour chatlog
-def fetch_recent_chat_logs(hours=1):
+def fetch_and_batch_chatlogs():
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database for fetching logs.")
-        return []
-
-    # Ensure the current time is in GMT+8
-    now_in_sgt = datetime.now(ZoneInfo("Asia/Singapore"))
-    one_hour_ago = now_in_sgt - datetime.timedelta(hours=hours)
-    logging.info(f"Fetching logs from: {one_hour_ago}")
+        return {}
 
     try:
         with conn, conn.cursor() as cur:
-            cur.execute("""
-                SELECT * FROM chat_logs 
-                WHERE timestamp >= %s
-            """, (one_hour_ago,))
+            cur.execute("SELECT conversation_id, prompt, response FROM chat_logs")
             chat_logs = cur.fetchall()
-            logging.info(f"Fetched {len(chat_logs)} chat log records.")
-            return chat_logs
+            batches = {}
+            for log in chat_logs:
+                uuid = str(log[0])
+                if uuid not in batches:
+                    batches[uuid] = []
+                batches[uuid].append(log[1] + " " + log[2])  # Combine prompt and response
+            return batches
     except Exception as e:
-        logging.error(f"Error fetching recent chat logs: {e}")
-        return []
-    finally:
-        if conn is not None:
-            conn.close()
-
-# fetch past hour chatlog
-def fetch_recent_chat_logs(hours=1):
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database for fetching logs.")
-        return []
-
-    one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=hours)
-    logging.info(f"Fetching logs from: {one_hour_ago}")
-
-    try:
-        with conn, conn.cursor() as cur:
-            cur.execute("""
-                SELECT * FROM chat_logs 
-                WHERE timestamp >= %s
-            """, (one_hour_ago,))
-            chat_logs = cur.fetchall()
-            logging.info(f"Fetched {len(chat_logs)} chat log records.")
-            return chat_logs
-    except Exception as e:
-        logging.error(f"Error fetching recent chat logs: {e}")
-        return []
+        logging.error(f"Error fetching and batching chat logs: {e}")
+        return {}
     finally:
         if conn is not None:
             conn.close()
@@ -180,3 +150,46 @@ def drop_chatlog_table():
     finally:
         if conn is not None:
             conn.close()
+
+
+def generate_summary_for_each_group(batches):
+    summaries = {}
+    for idx, (uuid, logs) in enumerate(batches.items(), start=1):
+        # Combine logs into a single text block for each group
+        combined_logs = "\n".join(logs)
+        prompt = f"You are a highly intelligent assistant. Summarize the following conversation for Group {idx} (UUID {uuid}):\n{combined_logs}"
+
+        # Call OpenAI API using GPT-3.5-turbo for each group separately
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{
+                "role": "system",
+                "content": prompt
+            }],
+        )
+
+        # Process and store the response for each group
+        if response.choices and len(response.choices) > 0:
+            # Trim and ensure the summary is properly formatted
+            summary_text = response.choices[0].message['content'].strip()
+            summaries[uuid] = summary_text
+        else:
+            summaries[uuid] = "No summary could be generated for this group."
+
+    return summaries
+
+def compile_summaries(summaries):
+    compiled_output = "Overall, the various groups discussed with areas for improvement:\n"
+    for idx, (uuid, summary) in enumerate(summaries.items(), start=1):
+        compiled_output += f"\nGroup {idx} summary (UUID {uuid}):\n{summary}\n"
+    return compiled_output
+
+# Fetch and batch the chat logs by UUID
+batches = fetch_and_batch_chatlogs()
+
+# Generate a summary for each group
+group_summaries = generate_summary_for_each_group(batches)
+
+# Compile the individual group summaries into a structured format
+final_summary_output = compile_summaries(group_summaries)
+print(final_summary_output)
