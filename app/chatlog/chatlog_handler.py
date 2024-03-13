@@ -4,7 +4,10 @@ import logging
 from app.db.database_connection import connect_to_db
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import openai
 import uuid
+from openai import OpenAI
+import streamlit as st
 
 def insert_chat_log(prompt, response, conversation_id):
     conn = connect_to_db()
@@ -75,58 +78,26 @@ def fetch_chat_logs():
         if conn is not None:
             conn.close()
 
-# fetch past hour chatlog
-
-
-def fetch_recent_chat_logs(hours=1):
+def fetch_and_batch_chatlogs():
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database for fetching logs.")
-        return []
-
-    # Ensure the current time is in GMT+8
-    now_in_sgt = datetime.now(ZoneInfo("Asia/Singapore"))
-    one_hour_ago = now_in_sgt - datetime.timedelta(hours=hours)
-    logging.info(f"Fetching logs from: {one_hour_ago}")
+        return {}
 
     try:
         with conn, conn.cursor() as cur:
-            cur.execute("""
-                SELECT * FROM chat_logs 
-                WHERE timestamp >= %s
-            """, (one_hour_ago,))
+            cur.execute("SELECT conversation_id, prompt, response FROM chat_logs")
             chat_logs = cur.fetchall()
-            logging.info(f"Fetched {len(chat_logs)} chat log records.")
-            return chat_logs
+            batches = {}
+            for log in chat_logs:
+                uuid = str(log[0])
+                if uuid not in batches:
+                    batches[uuid] = []
+                batches[uuid].append(log[1] + " " + log[2])  # Combine prompt and response
+            return batches
     except Exception as e:
-        logging.error(f"Error fetching recent chat logs: {e}")
-        return []
-    finally:
-        if conn is not None:
-            conn.close()
-
-# fetch past hour chatlog
-def fetch_recent_chat_logs(hours=1):
-    conn = connect_to_db()
-    if conn is None:
-        logging.error("Failed to connect to the database for fetching logs.")
-        return []
-
-    one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=hours)
-    logging.info(f"Fetching logs from: {one_hour_ago}")
-
-    try:
-        with conn, conn.cursor() as cur:
-            cur.execute("""
-                SELECT * FROM chat_logs 
-                WHERE timestamp >= %s
-            """, (one_hour_ago,))
-            chat_logs = cur.fetchall()
-            logging.info(f"Fetched {len(chat_logs)} chat log records.")
-            return chat_logs
-    except Exception as e:
-        logging.error(f"Error fetching recent chat logs: {e}")
-        return []
+        logging.error(f"Error fetching and batching chat logs: {e}")
+        return {}
     finally:
         if conn is not None:
             conn.close()
@@ -148,9 +119,6 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
 
     # Return the CSV content encoded in UTF-8
     return output.getvalue().encode('utf-8-sig')
-
-chat_logs = fetch_chat_logs()
-# print(chat_logs[0])
 
 # delete chatlog
 def delete_all_chatlogs():
@@ -185,3 +153,47 @@ def drop_chatlog_table():
     finally:
         if conn is not None:
             conn.close()
+
+
+def generate_summary_for_each_group(batches):
+    summaries = {}
+    for idx, (uuid, logs) in enumerate(batches.items(), start=1):
+        combined_logs = "\n".join(logs)
+        # Structuring the system message to include the task for summarization explicitly
+        system_message = "You are a highly intelligent assistant. Your task is to summarize the conversation."
+
+        # Preparing the messages for the chat completion API call
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": combined_logs}
+        ]
+        try:
+            client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+            )
+            if response and 'choices' in response and len(response['choices']) > 0:
+                summary_text = response.choices[0].message['content'].strip()
+                summaries[uuid] = summary_text  # Store just the summary text here
+            else:
+                summaries[uuid] = "No summary could be generated for this group."
+        except Exception as e:
+            summaries[uuid] = "Failed to generate summary due to an error: " + str(e)
+    return summaries
+
+def compile_summaries(summaries):
+    compiled_output = "Top level summary:\n"
+    for idx, (uuid, summary) in enumerate(summaries.items(), start=1):
+        compiled_output += f"\nGroup {idx} summary (UUID {uuid}):\n{summary}\n"
+    return compiled_output
+
+
+# Fetch and batch the chat logs by UUID
+batches = fetch_and_batch_chatlogs()
+
+# Generate a summary for each group
+group_summaries = generate_summary_for_each_group(batches)
+
+# Compile the individual group summaries into a structured format
+final_summary_output = compile_summaries(group_summaries)
