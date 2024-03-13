@@ -173,25 +173,21 @@ def generate_summary_for_each_group(batches):
                 model="gpt-3.5-turbo",
                 messages=messages,
             )
-
             if response and 'choices' in response and len(response['choices']) > 0:
-                # Extracting the summary text from the response
                 summary_text = response.choices[0].message['content'].strip()
-                summaries[uuid] = f"Group {idx} summary (UUID {uuid}):\n{summary_text}"
+                summaries[uuid] = summary_text  # Store just the summary text here
             else:
-                summaries[uuid] = f"Group {idx} summary (UUID {uuid}): No summary could be generated for this group."
-
+                summaries[uuid] = "No summary could be generated for this group."
         except Exception as e:
-            # Handling any exceptions that occur during the API call
-            summaries[uuid] = f"Group {idx} summary (UUID {uuid}): Failed to generate summary due to an error: {str(e)}"
-
+            summaries[uuid] = "Failed to generate summary due to an error: " + str(e)
     return summaries
 
 def compile_summaries(summaries):
-    compiled_output = "Overall, the various groups discussed with areas for improvement:\n"
+    compiled_output = "Top level summary:\n"
     for idx, (uuid, summary) in enumerate(summaries.items(), start=1):
         compiled_output += f"\nGroup {idx} summary (UUID {uuid}):\n{summary}\n"
     return compiled_output
+
 
 # Fetch and batch the chat logs by UUID
 batches = fetch_and_batch_chatlogs()
