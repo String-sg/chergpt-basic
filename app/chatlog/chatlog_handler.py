@@ -4,7 +4,10 @@ import logging
 from app.db.database_connection import connect_to_db
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import openai
 import uuid
+from openai import OpenAI
+import streamlit as st
 
 def insert_chat_log(prompt, response, conversation_id):
     conn = connect_to_db()
@@ -155,26 +158,32 @@ def drop_chatlog_table():
 def generate_summary_for_each_group(batches):
     summaries = {}
     for idx, (uuid, logs) in enumerate(batches.items(), start=1):
-        # Combine logs into a single text block for each group
         combined_logs = "\n".join(logs)
-        prompt = f"You are a highly intelligent assistant. Summarize the following conversation for Group {idx} (UUID {uuid}):\n{combined_logs}"
+        # Structuring the system message to include the task for summarization explicitly
+        system_message = "You are a highly intelligent assistant. Your task is to summarize the conversation."
 
-        # Call OpenAI API using GPT-3.5-turbo for each group separately
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{
-                "role": "system",
-                "content": prompt
-            }],
-        )
+        # Preparing the messages for the chat completion API call
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": combined_logs}
+        ]
+        try:
+            client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+            )
 
-        # Process and store the response for each group
-        if response.choices and len(response.choices) > 0:
-            # Trim and ensure the summary is properly formatted
-            summary_text = response.choices[0].message['content'].strip()
-            summaries[uuid] = summary_text
-        else:
-            summaries[uuid] = "No summary could be generated for this group."
+            if response and 'choices' in response and len(response['choices']) > 0:
+                # Extracting the summary text from the response
+                summary_text = response.choices[0].message['content'].strip()
+                summaries[uuid] = f"Group {idx} summary (UUID {uuid}):\n{summary_text}"
+            else:
+                summaries[uuid] = f"Group {idx} summary (UUID {uuid}): No summary could be generated for this group."
+
+        except Exception as e:
+            # Handling any exceptions that occur during the API call
+            summaries[uuid] = f"Group {idx} summary (UUID {uuid}): Failed to generate summary due to an error: {str(e)}"
 
     return summaries
 
@@ -192,4 +201,3 @@ group_summaries = generate_summary_for_each_group(batches)
 
 # Compile the individual group summaries into a structured format
 final_summary_output = compile_summaries(group_summaries)
-print(final_summary_output)

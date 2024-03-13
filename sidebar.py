@@ -1,9 +1,16 @@
 import streamlit as st
-from app.chatlog.chatlog_handler import delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table
+from app.chatlog.chatlog_handler import compile_summaries, delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table, fetch_and_batch_chatlogs, generate_summary_for_each_group
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
 from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description
 custominstructions_area_height = 300
 app_description = get_app_description()
+
+def load_summaries():
+    # Placeholder function call - replace with actual function logic
+    batches = fetch_and_batch_chatlogs()
+    group_summaries = generate_summary_for_each_group(batches)
+    final_summary_output = compile_summaries(group_summaries)
+    return final_summary_output
 
 def setup_sidebar():
     with st.sidebar:
@@ -40,6 +47,16 @@ def setup_sidebar():
 
             with st.expander("💬 Chatlog and insights"):
                 csv_data = export_chat_logs_to_csv()
+                if st.button("View Summary"):
+                    # Generate or fetch summaries
+                    summaries_text = load_summaries()
+                    # Store the summaries in session state to persist the data
+                    st.session_state["summaries_text"] = summaries_text
+                    st.success("Summaries loaded.")
+
+                    # Immediately display the summaries after loading
+                    # Use a modal-like expander to show the summaries
+                    st.write(st.session_state["summaries_text"])
                 if csv_data:
                     st.download_button(label="Download Chat Logs", data=csv_data, file_name='chat_logs.csv', mime='text/csv',)
                 if st.button("Delete All Chat Logs"):

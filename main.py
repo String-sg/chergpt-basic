@@ -48,7 +48,6 @@ initialize_db()
 
 
 # Create update instructions
-
 existing_instructions = get_latest_instructions()
 custom_instructions = existing_instructions
 
