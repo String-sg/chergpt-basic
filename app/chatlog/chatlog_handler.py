@@ -76,8 +76,6 @@ def fetch_chat_logs():
             conn.close()
 
 # fetch past hour chatlog
-
-
 def fetch_recent_chat_logs(hours=1):
     conn = connect_to_db()
     if conn is None:

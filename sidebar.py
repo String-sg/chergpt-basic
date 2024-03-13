@@ -8,7 +8,7 @@ app_description = get_app_description()
 def setup_sidebar():
     with st.sidebar:
         st.title("Settings")
-        with st.expander("🔑 Admin config"):
+        with st.expander("🔑 Admin login"):
             admin_password = st.text_input("Educators only", type="password", key="admin_password")
             if admin_password == st.secrets["ADMIN_PASSWORD"]:
                 st.session_state["is_admin"] = True
