@@ -43,16 +43,20 @@ Keep this somewhere safe, you will also need to use this shortly.
 
 ## 3 Deploying to Streamlit
 
-# Click [here](https://share.streamlit.io/create-from-fork?owner=string-sg&repository=chergpt-basic&branch=main&mainModule=main.py&appId=c730ddec-3987-442a-9ed0-14754a284ed0)
+# Click [here]([https://share.streamlit.io/create-from-fork?owner=string-sg&repository=chergpt-basic&branch=main&mainModule=main.py&appId=c730ddec-3987-442a-9ed0-14754a284ed0](https://share.streamlit.io/deploy))
+
+
 
 1. You will be prompted to create a streamlit account [here](https://streamlit.io/)
 2. You will be prompted to create a github account
 ![image](https://github.com/String-sg/chergpt-basic/assets/44336310/f6db1538-2481-4cd8-95e0-a45a02285768)
-3. You should see this screen - edit the domain to anything of your choice!
+3. Click Deploy app. You should see this screen - edit the domain to anything of your choice!
+![image](https://github.com/String-sg/chergpt-basic/assets/44336310/a0a72e78-b3ef-4e3e-9698-c4378c13defc)
+Under Repository, type: String-sg/Chergpt-basic
 ![image](https://github.com/String-sg/chergpt-basic/assets/44336310/8574e485-06fb-4b0c-b7d9-48755ce7bc8d)
-4. Go to advanced settings and update Secrets.toml with your own values
+5. Go to advanced settings and update Secrets.toml with your own values
 ![image](https://github.com/String-sg/chergpt-basic/assets/44336310/114583ab-a36e-4725-8d65-3705393293a3)
-5. Upon clicking "fork", wait a few mins:<br>
+6. Upon clicking "fork", wait a few mins:<br>
 ![image](https://github.com/String-sg/chergpt-basic/assets/44336310/6270480b-0e97-4195-815f-5f9b7e2939fd)
 
 
