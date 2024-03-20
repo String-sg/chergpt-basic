@@ -1,8 +1,8 @@
 # Chergpt-Basic: Custom Chat Assistant
 Chergpt-Basic is a simplified, login-free ChatGPT-like interface designed for quick deployment
-![image](https://github.com/String-sg/chergpt-basic/assets/44336310/7781fef9-7954-4a47-9523-0edb200b48c0)
+![image](https://github.com/String-sg/chergpt-basic/assets/44336310/73912243-d638-4b48-a2a8-2ed54d79ec80)
 It is also mobile friendly! <br>
-![image](https://github.com/String-sg/chergpt-basic/assets/44336310/38e3abe7-4e48-4a24-9484-1ea91f0f11eb)
+![image](https://github.com/String-sg/chergpt-basic/assets/44336310/d77d5654-699a-405e-a65d-880f983b22b4)
 
 ## Deployment - examples
 -  https://chergpt-physics-lookang.streamlit.app/ from my own forked GitHub 
