@@ -111,6 +111,24 @@ def get_app_title():
         if conn:
             conn.close()
 
+def update_app_title(new_title):
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE app_title SET description = %s WHERE id = 1;
+            """, (new_title,))
+            conn.commit()
+            logging.info("App description updated successfully.")
+    except Exception as e:
+        logging.error(f"Error updating app title: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 def update_app_description(new_description):
