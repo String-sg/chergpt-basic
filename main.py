@@ -7,12 +7,13 @@ import logging
 import streamlit as st
 from app.chatlog.chatlog_handler import insert_chat_log, initialize_chatlog_table
 from sidebar import setup_sidebar
-from app.db.database_connection import connect_to_db, get_app_description, initialize_db, update_app_description
+from app.db.database_connection import get_app_description, get_app_title, initialize_db, update_app_description
 from app.instructions.instructions_handler import get_latest_instructions
 import uuid
 
-st.title("CherGPT Basic")
+app_title = get_app_title()
 app_description = get_app_description() or "Chatbot to support teaching and learning"
+st.title(app_title)
 # Initialize session state for admin
 if "is_admin" not in st.session_state:
     st.session_state["is_admin"] = False
