@@ -89,6 +89,29 @@ def get_app_description():
         if conn:
             conn.close()
 
+def get_app_title():
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return "Default app title here."
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT title FROM app_title WHERE id = 1;")
+            description = cur.fetchone()
+            if description:
+                return description[0]
+            else:
+                return "CherGPT"
+
+    except Exception as e:
+        logging.error(f"Error fetching app title: {e}")
+        return "CherGPT."
+    finally:
+        if conn:
+            conn.close()
+
+
 
 def update_app_description(new_description):
     conn = connect_to_db()
