@@ -12,6 +12,7 @@ from app.instructions.instructions_handler import get_latest_instructions
 import uuid
 
 st.title("CherGPT Basic")
+app_title = get_app_title() or "CherGPT"
 app_description = get_app_description() or "Chatbot to support teaching and learning"
 # Initialize session state for admin
 if "is_admin" not in st.session_state:

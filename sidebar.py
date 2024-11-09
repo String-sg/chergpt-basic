@@ -26,12 +26,19 @@ def setup_sidebar():
 
     if st.session_state.get("is_admin", False):
         with st.sidebar:
+            with st.expander("⚙️ Edit Title"):
+                editable_title = st.text_area("This amends title", value=app_title, key="app_title")
+                # Button to save the updated app description
+                if st.button("Update title", key="save_app_title"):
+                    # Update the app description in the database
+                    update_app_title(editable_title)
+                    st.success("App description updated successfully")
             # Check if the user is an admin to provide editing capability
             # Provide a text area for admins to edit the app description
             with st.expander("⚙️ Edit description"):
                 editable_description = st.text_area("This amends text below title", value=app_description, key="app_description")
                 # Button to save the updated app description
-                if st.button("Update description", key="save_app_description"):
+                if st.button("Update description", key="save_app_title"):
                     # Update the app description in the database
                     update_app_description(editable_description)
                     st.success("App description updated successfully")
