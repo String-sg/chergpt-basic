@@ -26,6 +26,26 @@ def setup_sidebar():
                 st.session_state["is_admin"] = False
 
     if st.session_state.get("is_admin", False):
+        # New CSV Upload Section
+        with st.expander("📂 Upload Quiz Questions"):
+            uploaded_file = st.file_uploader("Upload CSV for Quiz Questions", type="csv")
+            if uploaded_file:
+                # Read and display the CSV file
+                questions_df = pd.read_csv(uploaded_file)
+                st.write("Preview of Uploaded Questions:")
+                st.dataframe(questions_df.head())
+
+                if st.button("Save Questions to Database"):
+                    for _, row in questions_df.iterrows():
+                        insert_question(
+                            question_id=row["question_id"],
+                            content=row["content"],
+                            difficulty=row["difficulty"],
+                            topic=row["topic"],
+                            answer_keywords=row["answer_keywords"]
+                        )
+                    st.success("Questions uploaded and saved successfully!")
+                    
         with st.sidebar:
             with st.expander("⚙️ Edit Title"):
                 editable_title = st.text_area("This amends title", value=app_title, key="app_title")
@@ -33,7 +53,7 @@ def setup_sidebar():
                 if st.button("Update title", key="save_app_title"):
                     # Update the app description in the database
                     update_app_title(editable_title)
-                    st.success("App title updated successfully")
+                    st.success("App description updated successfully")
             # Check if the user is an admin to provide editing capability
             # Provide a text area for admins to edit the app description
             with st.expander("⚙️ Edit description"):
