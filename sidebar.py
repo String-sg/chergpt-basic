@@ -1,14 +1,15 @@
 import streamlit as st
 from app.chatlog.chatlog_handler import compile_summaries, delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table, fetch_and_batch_chatlogs, generate_summary_for_each_group
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
-from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description
+from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description, get_app_title, update_app_title
 custominstructions_area_height = 300
+app_title = get_app_title()
 app_description = get_app_description()
 
 def load_summaries():
     # Placeholder function call - replace with actual function logic
     batches = fetch_and_batch_chatlogs()
-    group_summaries = generate_summary_for_each_group(batches)
+    group_summaries = generate_summary_for_each_group(batches) 
     final_summary_output = compile_summaries(group_summaries)
     return final_summary_output
 
@@ -32,13 +33,13 @@ def setup_sidebar():
                 if st.button("Update title", key="save_app_title"):
                     # Update the app description in the database
                     update_app_title(editable_title)
-                    st.success("App description updated successfully")
+                    st.success("App title updated successfully")
             # Check if the user is an admin to provide editing capability
             # Provide a text area for admins to edit the app description
             with st.expander("⚙️ Edit description"):
                 editable_description = st.text_area("This amends text below title", value=app_description, key="app_description")
                 # Button to save the updated app description
-                if st.button("Update description", key="save_app_title"):
+                if st.button("Update description", key="save_app_description"):
                     # Update the app description in the database
                     update_app_description(editable_description)
                     st.success("App description updated successfully")

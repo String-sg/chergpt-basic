@@ -11,7 +11,7 @@ from app.db.database_connection import get_app_description, get_app_title, initi
 from app.instructions.instructions_handler import get_latest_instructions
 import uuid
 
-app_title = get_app_title() or "CherGPT"
+app_title = get_app_title()
 app_description = get_app_description() or "Chatbot to support teaching and learning"
 st.title(app_title)
 # Initialize session state for admin

@@ -60,6 +60,22 @@ def initialize_db():
                 ON CONFLICT (id) DO NOTHING;
             """)
 
+            # Initialize app_title table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS app_title (
+                    id SERIAL PRIMARY KEY,
+                    description TEXT
+                );
+            """)
+            
+            # Ensure there is always one row in app_title to update
+            cur.execute("""
+                INSERT INTO app_title (id, description)
+                VALUES (1, 'CherGPT')
+                ON CONFLICT (id) DO NOTHING;
+            """)
+
+
         conn.commit()
     except Exception as e:
         logging.error(f"Error initializing database: {e}")
@@ -97,7 +113,7 @@ def get_app_title():
 
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT title FROM app_title WHERE id = 1;")
+            cur.execute("SELECT description FROM app_title WHERE id = 1;")
             description = cur.fetchone()
             if description:
                 return description[0]
@@ -106,7 +122,7 @@ def get_app_title():
 
     except Exception as e:
         logging.error(f"Error fetching app title: {e}")
-        return "CherGPT."
+        return "CherGPT"
     finally:
         if conn:
             conn.close()
