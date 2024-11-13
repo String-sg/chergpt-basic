@@ -105,12 +105,12 @@ def initialize_db():
         if conn:
             conn.close()
 
-def insert_question(question_id, content, difficulty, topic, answer_keywords):
+def insert_question(question_id, qns, level, topic, keywords):
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
-
+                            
     try:
         with conn.cursor() as cur:
             cur.execute("""

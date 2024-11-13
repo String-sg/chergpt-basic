@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd  
 from app.chatlog.chatlog_handler import compile_summaries, delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table, fetch_and_batch_chatlogs, generate_summary_for_each_group
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
-from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description, get_app_title, update_app_title
+from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description, get_app_title, update_app_title, insert_question
+
 custominstructions_area_height = 300
 app_title = get_app_title()
 app_description = get_app_description()
@@ -16,7 +17,7 @@ def load_summaries():
 
 def setup_sidebar():
     with st.sidebar:
-        st.title("Settings")
+        st.title("SETTINGS")
         with st.expander("🔑 Admin login"):
             admin_password = st.text_input("Educators only", type="password", key="admin_password")
             if admin_password == st.secrets["ADMIN_PASSWORD"]:
@@ -29,16 +30,20 @@ def setup_sidebar():
     if st.session_state.get("is_admin", False):
         # Quiz Mode
         with st.sidebar:
-            st.title("Quiz Mode")
+            st.title("QUIZ MODE")
             st.session_state["quiz_mode"] = st.toggle("Enable Quiz Mode")
         # New CSV Upload Section
         with st.sidebar:
-            st.title("Settings")
             with st.expander("📂 Upload Quiz Questions"):
                 uploaded_file = st.file_uploader("Upload CSV for Quiz Questions", type="csv")
                 if uploaded_file:
-                    # Read and display the CSV file
                     questions_df = pd.read_csv(uploaded_file)
+                    
+                    # If question_id is missing, generate unique IDs
+                    if "question_id" not in questions_df.columns:
+                        import uuid
+                        questions_df["question_id"] = [str(uuid.uuid4()) for _ in range(len(questions_df))]
+
                     st.write("Preview of Uploaded Questions:")
                     st.dataframe(questions_df.head())
 
@@ -46,14 +51,15 @@ def setup_sidebar():
                         for _, row in questions_df.iterrows():
                             insert_question(
                                 question_id=row["question_id"],
-                                content=row["content"],
-                                difficulty=row["difficulty"],
-                                topic=row["topic"],
-                                answer_keywords=row["answer_keywords"]
+                                content=row["qns"],
+                                level=row["level"],
+                                topic=row.get("tag_optional", ""),  # Use empty string if tag_optional is missing
+                                answer_keywords=row["keywords"]
                             )
                         st.success("Questions uploaded and saved successfully!")
                     
         with st.sidebar:
+            st.title("OTHER SETTINGS")
             with st.expander("⚙️ Edit Title"):
                 editable_title = st.text_area("This amends title", value=app_title, key="app_title")
                 # Button to save the updated app description
