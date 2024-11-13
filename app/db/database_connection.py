@@ -52,7 +52,7 @@ def initialize_db():
                 CREATE TABLE IF NOT EXISTS app_info (
                     id SERIAL PRIMARY KEY,
                     description TEXT,
-                    quiz_mode BOOLEAN DEFAULT FALSE
+                    quiz_mode BOOLEAN DEFAULT TRUE
                 );
             """)
             # Add student logs
@@ -114,7 +114,7 @@ def initialize_db():
         if conn:
             conn.close()
 
-def insert_question(question_id, qns, level, topic, keywords):
+def insert_question(question_id, content, level, topic, keywords):
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
@@ -123,9 +123,9 @@ def insert_question(question_id, qns, level, topic, keywords):
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO questions (question_id, qns, level, topic, keywords)
+                INSERT INTO questions (question_id, content, level, topic, keywords)
                 VALUES (%s, %s, %s, %s, %s);
-            """, (question_id, qns, level, topic, keywords))
+            """, (question_id, content, level, topic, keywords))
             conn.commit()
     except Exception as e:
         logging.error(f"Error inserting question: {e}")
@@ -265,3 +265,26 @@ def get_quiz_mode():
     finally:
         if conn:
             conn.close()
+
+def check_schema():
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+    try:
+        with conn.cursor() as cur:
+            # Get schema details for each table
+            for table_name in ["questions", "app_info", "student_logs", "instructions", "app_title"]:
+                cur.execute(f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{table_name}';")
+                columns = cur.fetchall()
+                print(f"Table: {table_name}")
+                for column in columns:
+                    print(f"Column: {column[0]}, Type: {column[1]}")
+                print("\n")
+    except Exception as e:
+        logging.error(f"Error checking schema: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+# check_schema()

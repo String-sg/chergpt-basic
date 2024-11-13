@@ -61,10 +61,10 @@ def setup_sidebar():
                         for _, row in questions_df.iterrows():
                             insert_question(
                                 question_id=row["question_id"],
-                                qns=row["qns"],
-                                level=row["level"],
-                                topic=row.get("tag_optional", ""),  # Use empty string if tag_optional is missing
-                                keywords=row["keywords"]
+                                content=row["content"],
+                                difficulty=row["difficulty"],
+                                topic=row.get("topic", ""),  # Use empty string if tag_optional is missing
+                                answer_keywords=row["answer_keywords"]
                             )
                         st.success("Questions uploaded and saved successfully!")
                     
