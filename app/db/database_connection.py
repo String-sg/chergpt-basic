@@ -36,12 +36,34 @@ def initialize_db():
         return
     try:
         with conn.cursor() as cur:
+            # Initialize questions table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS questions (
+                    question_id UUID PRIMARY KEY,
+                    content TEXT NOT NULL,
+                    difficulty INT NOT NULL,
+                    topic TEXT,
+                    answer_keywords TEXT
+                );
+            """)
+            # Add student logs
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS student_logs (
+                student_name TEXT,
+                question_id UUID,
+                understanding_level TEXT,
+                response TEXT,
+                is_correct BOOLEAN,
+                timestamp TIMESTAMP DEFAULT (current_timestamp AT TIME ZONE 'Asia/Singapore')
+            );
+            """)
+            conn.commit()
             # Initialize instructions table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS instructions (
                     id SERIAL PRIMARY KEY,
                     content TEXT,
-                    timestamp TIMESTAMP DEFAULT current_timestamp
+                    timestamp TIMESTAMP DEFAULT (current_timestamp AT TIME ZONE 'Asia/Singapore')
                 );
             """)
 
