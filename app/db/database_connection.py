@@ -114,9 +114,9 @@ def insert_question(question_id, qns, level, topic, keywords):
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO questions (question_id, content, difficulty, topic, answer_keywords)
+                INSERT INTO questions (question_id, qns, level, topic, keywords)
                 VALUES (%s, %s, %s, %s, %s);
-            """, (question_id, content, difficulty, topic, answer_keywords))
+            """, (question_id, qns, level, topic, keywords))
             conn.commit()
     except Exception as e:
         logging.error(f"Error inserting question: {e}")
