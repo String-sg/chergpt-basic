@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd  
 from app.chatlog.chatlog_handler import compile_summaries, delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table, fetch_and_batch_chatlogs, generate_summary_for_each_group
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
 from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description, get_app_title, update_app_title
