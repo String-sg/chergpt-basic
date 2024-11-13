@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd  
 from app.chatlog.chatlog_handler import compile_summaries, delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table, fetch_and_batch_chatlogs, generate_summary_for_each_group
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
-from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description, get_app_title, update_app_title, insert_question
+from app.db.database_connection import  drop_instructions_table, get_app_description, get_quiz_mode, set_quiz_mode, update_app_description, get_app_title, update_app_title, insert_question
 
 custominstructions_area_height = 300
 app_title = get_app_title()
@@ -31,7 +31,17 @@ def setup_sidebar():
         # Quiz Mode
         with st.sidebar:
             st.title("QUIZ MODE")
-            st.session_state["quiz_mode"] = st.toggle("Enable Quiz Mode", value=True)
+            # Get the current quiz mode state from the database
+            initial_quiz_mode = get_quiz_mode()  
+            
+            # Display toggle with the initial state from the database
+            quiz_mode = st.toggle("Enable Quiz Mode", value=initial_quiz_mode)
+            
+            # Check if the toggle state has changed
+            if quiz_mode != initial_quiz_mode:
+                set_quiz_mode(quiz_mode)  # Save the new state to the database
+                st.session_state["quiz_mode"] = quiz_mode  # Update session state
+
         # New CSV Upload Section
         with st.sidebar:
             with st.expander("📂 Upload Quiz Questions"):

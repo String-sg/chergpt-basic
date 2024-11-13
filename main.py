@@ -91,6 +91,7 @@ if st.session_state["quiz_mode"]:
         if student_name_input:
             st.session_state["student_name"] = student_name_input  # Set student name once input is provided
             start_quiz()  # Start the quiz after name is entered
+            st.experimental_rerun()  # Force rerun to load the next question immediately
 
     # Check if quiz has started and load the question if it has
     elif st.session_state.get("quiz_started", False):
