@@ -1,4 +1,5 @@
 import logging
+import random
 from app.db.database_connection import connect_to_db
 
 def get_latest_instructions():
@@ -37,5 +38,40 @@ def update_instructions(new_instructions):
             logging.info("Instructions updated successfully.")
     except Exception as e:
         logging.error(f"Error updating instructions: {e}")
+    finally:
+        conn.close()
+
+
+def retrieve_question_by_difficulty(difficulty_level):
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return None
+
+    try:
+        with conn.cursor() as cur:
+            # Query to select questions with the specified difficulty level
+            cur.execute("""
+                SELECT question_id, content, answer_keywords, difficulty, topic
+                FROM questions
+                WHERE difficulty = %s
+                ORDER BY RANDOM() LIMIT 1;
+            """, (difficulty_level,))
+            
+            question = cur.fetchone()
+            if question:
+                return {
+                    "question_id": question[0],
+                    "content": question[1],
+                    "answer_keywords": question[2],
+                    "difficulty": question[3],
+                    "topic": question[4]
+                }
+            else:
+                logging.warning(f"No questions found for difficulty level {difficulty_level}.")
+                return None
+    except Exception as e:
+        logging.error(f"Error retrieving question by difficulty: {e}")
+        return None
     finally:
         conn.close()

@@ -31,7 +31,7 @@ def setup_sidebar():
         # Quiz Mode
         with st.sidebar:
             st.title("QUIZ MODE")
-            st.session_state["quiz_mode"] = st.toggle("Enable Quiz Mode")
+            st.session_state["quiz_mode"] = st.toggle("Enable Quiz Mode", value=True)
         # New CSV Upload Section
         with st.sidebar:
             with st.expander("📂 Upload Quiz Questions"):
