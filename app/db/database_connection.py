@@ -46,6 +46,15 @@ def initialize_db():
                     answer_keywords TEXT
                 );
             """)
+
+            # Initialize app_info table with a quiz_mode column
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS app_info (
+                    id SERIAL PRIMARY KEY,
+                    description TEXT,
+                    quiz_mode BOOLEAN DEFAULT FALSE
+                );
+            """)
             # Add student logs
             cur.execute("""
             CREATE TABLE IF NOT EXISTS student_logs (
