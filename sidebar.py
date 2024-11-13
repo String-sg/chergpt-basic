@@ -26,25 +26,31 @@ def setup_sidebar():
                 st.session_state["is_admin"] = False
 
     if st.session_state.get("is_admin", False):
+        # Quiz Mode
+        with st.sidebar:
+            st.title("Quiz Mode")
+            st.session_state["quiz_mode"] = st.toggle("Enable Quiz Mode")
         # New CSV Upload Section
-        with st.expander("📂 Upload Quiz Questions"):
-            uploaded_file = st.file_uploader("Upload CSV for Quiz Questions", type="csv")
-            if uploaded_file:
-                # Read and display the CSV file
-                questions_df = pd.read_csv(uploaded_file)
-                st.write("Preview of Uploaded Questions:")
-                st.dataframe(questions_df.head())
+        with st.sidebar:
+            st.title("Settings")
+            with st.expander("📂 Upload Quiz Questions"):
+                uploaded_file = st.file_uploader("Upload CSV for Quiz Questions", type="csv")
+                if uploaded_file:
+                    # Read and display the CSV file
+                    questions_df = pd.read_csv(uploaded_file)
+                    st.write("Preview of Uploaded Questions:")
+                    st.dataframe(questions_df.head())
 
-                if st.button("Save Questions to Database"):
-                    for _, row in questions_df.iterrows():
-                        insert_question(
-                            question_id=row["question_id"],
-                            content=row["content"],
-                            difficulty=row["difficulty"],
-                            topic=row["topic"],
-                            answer_keywords=row["answer_keywords"]
-                        )
-                    st.success("Questions uploaded and saved successfully!")
+                    if st.button("Save Questions to Database"):
+                        for _, row in questions_df.iterrows():
+                            insert_question(
+                                question_id=row["question_id"],
+                                content=row["content"],
+                                difficulty=row["difficulty"],
+                                topic=row["topic"],
+                                answer_keywords=row["answer_keywords"]
+                            )
+                        st.success("Questions uploaded and saved successfully!")
                     
         with st.sidebar:
             with st.expander("⚙️ Edit Title"):
