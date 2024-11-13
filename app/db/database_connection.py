@@ -127,6 +127,26 @@ def get_app_description():
         if conn:
             conn.close()
 
+def log_student_interaction(student_name, question_id, understanding_level, response, is_correct):
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO student_logs (student_name, question_id, understanding_level, response, is_correct)
+                VALUES (%s, %s, %s, %s, %s);
+            """, (student_name, question_id, understanding_level, response, is_correct))
+            conn.commit()
+            logging.info(f"Logged interaction for {student_name} on question {question_id}.")
+    except Exception as e:
+        logging.error(f"Error logging student interaction: {e}")
+    finally:
+        if conn:
+            conn.close()
+
 def get_app_title():
     conn = connect_to_db()
     if conn is None:
