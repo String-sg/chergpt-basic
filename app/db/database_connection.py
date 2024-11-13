@@ -40,7 +40,7 @@ def initialize_db():
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS questions (
                     question_id UUID PRIMARY KEY,
-                    content TEXT NOT NULL,
+                    qns TEXT NOT NULL,
                     difficulty INT NOT NULL,
                     topic TEXT,
                     answer_keywords TEXT
