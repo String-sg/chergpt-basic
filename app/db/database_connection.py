@@ -235,3 +235,33 @@ def update_app_description(new_description):
     finally:
         if conn:
             conn.close()
+
+def set_quiz_mode(enabled):
+    conn = connect_to_db()
+    if conn is None:
+        return
+    try:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE app_info SET quiz_mode = %s WHERE id = 1;", (enabled,))
+        conn.commit()
+    except Exception as e:
+        logging.error(f"Error setting quiz mode: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+def get_quiz_mode():
+    conn = connect_to_db()
+    if conn is None:
+        return False
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT quiz_mode FROM app_info WHERE id = 1;")
+            result = cur.fetchone()
+            return result[0] if result else False
+    except Exception as e:
+        logging.error(f"Error getting quiz mode: {e}")
+        return False
+    finally:
+        if conn:
+            conn.close()
