@@ -75,3 +75,23 @@ def retrieve_question_by_difficulty(difficulty_level):
         return None
     finally:
         conn.close()
+
+
+def log_understanding(student_name, question_id, understanding_level):
+    conn = connect_to_db()
+    if conn is None:
+        logging.error("Failed to connect to the database.")
+        return
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO student_logs (student_name, question_id, understanding_level)
+                VALUES (%s, %s, %s);
+            """, (student_name, question_id, understanding_level))
+            conn.commit()
+            logging.info(f"Logged understanding level for {student_name} on question {question_id}.")
+    except Exception as e:
+        logging.error(f"Error logging understanding level: {e}")
+    finally:
+        conn.close()
