@@ -40,6 +40,7 @@ def start_quiz():
     st.session_state["difficulty_level"] = 1
     st.session_state["question_index"] = 0
     st.session_state["quiz_started"] = True
+    st.session_state["feedback"] = None  # For displaying feedback after each answer
     st.rerun()  # Force rerun to update UI immediately
 
 def assess_response(response, question):
@@ -47,6 +48,33 @@ def assess_response(response, question):
     keywords_matched = sum(1 for keyword in expected_keywords if keyword.lower() in response.lower())
     is_correct = keywords_matched >= len(expected_keywords) / 2 and len(response.split()) > 5
     return is_correct
+
+def provide_feedback(student_response, expected_keywords):
+    try:
+        # Construct the prompt for OpenAI
+        feedback_prompt = (
+            f"The student answered the following question with this response:\n"
+            f"{student_response}\n\n"
+            f"The expected keywords or concepts to cover were: {expected_keywords}.\n\n"
+            f"Please provide specific feedback on how well the student covered these points. "
+            f"Highlight any concepts they addressed correctly and point out any they missed, with suggestions for improvement."
+        )
+
+        # Make the API call
+        response = client.Completion.create(
+            model=st.session_state["openai_model"],
+            prompt=feedback_prompt,
+            max_tokens=350,
+            temperature=0.5,
+        )
+
+        # Extract and return the feedback from OpenAI's response
+        feedback = response.choices[0].text.strip()
+        return feedback
+
+    except Exception as e:
+        logging.error(f"Error getting feedback from OpenAI: {e}")
+        return "There was an error generating specific feedback."
 
 # Function to load and display the next question
 def load_next_question():
@@ -73,6 +101,11 @@ def load_next_question():
                 is_correct = assess_response(student_response, current_question)
                 st.session_state["difficulty_level"] += 1 if is_correct else max(1, st.session_state["difficulty_level"] - 1)
                 
+                expected_keywords = st.session_state["answer_keywords"]
+
+                # Generate feedback using OpenAI API
+                st.session_state["feedback"] = provide_feedback(st.session_state["student_response"], expected_keywords)
+
                 # Log response
                 insert_chat_log(st.session_state["conversation_id"], student_response, is_correct)
                 
