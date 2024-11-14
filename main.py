@@ -19,9 +19,6 @@ initialize_db()  # Initialize the database
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Set quiz_mode to True by default if it's not already in session state
-if "quiz_mode" not in st.session_state:
-    st.session_state["quiz_mode"] = True
-
 # Initialize session states for admin and conversation
 if "is_admin" not in st.session_state:
     st.session_state["is_admin"] = False
@@ -31,13 +28,50 @@ if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-4o-mini"
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "student_response" not in st.session_state:
+    st.session_state["student_response"] = ""
+if "available_difficulties" not in st.session_state:
+    st.session_state["available_difficulties"] = []
+if "answer_keywords" not in st.session_state:
+    st.session_state["answer_keywords"] = ""  # Initialize to empty string
+if "feedback" not in st.session_state:
+    st.session_state["feedback"] = None  # Initialize feedback
 
 # Display app description
 st.markdown(app_description, unsafe_allow_html=True)
 
+
+def fetch_available_difficulties():
+    # Fetch all unique difficulty levels in ascending order from the database
+    conn = connect_to_db()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT DISTINCT difficulty FROM questions ORDER BY difficulty ASC;")
+                levels = [row[0] for row in cur.fetchall()]
+                st.session_state["available_difficulties"] = levels
+        except Exception as e:
+            logging.error(f"Error fetching difficulty levels: {e}")
+        finally:
+            conn.close()
+
+def get_next_difficulty(current_level):
+    # Find the next highest difficulty in the list
+    available_levels = st.session_state["available_difficulties"]
+    for level in available_levels:
+        if level > current_level:
+            return level
+    return None  # Return None if there is no higher level
+
+
 def start_quiz():
     # Set quiz session state variables
-    st.session_state["difficulty_level"] = 1
+    fetch_available_difficulties()  # Get available difficulty levels from DB
+    if st.session_state["available_difficulties"]:
+        st.session_state["difficulty_level"] = st.session_state["available_difficulties"][0]
+    else:
+        st.error("No questions available in the database.")
+        return
     st.session_state["question_index"] = 0
     st.session_state["quiz_started"] = True
     st.session_state["feedback"] = None  # For displaying feedback after each answer
@@ -82,6 +116,7 @@ def load_next_question():
     if current_question:
         st.session_state["current_question_id"] = current_question["question_id"]
         st.session_state["current_question_content"] = current_question["content"]
+        st.session_state["answer_keywords"] = current_question.get("answer_keywords", "")  # Use default empty string
         st.markdown(f"**Question:** {current_question['content']}")
         
         # Understanding Level Selection
