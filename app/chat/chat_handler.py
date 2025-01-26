@@ -2,6 +2,7 @@
 import streamlit as st
 from openai import OpenAI
 import os
+import uuid
 from app.chatlog.chatlog_handler import insert_chat_log
 
 def initialize_chat_state():
@@ -12,17 +13,16 @@ def initialize_chat_state():
     if "conversation_id" not in st.session_state:
         st.session_state["conversation_id"] = str(uuid.uuid4())
 
-from streamlit_chat_ui_improvement import chat_ui
-
 def display_chat_history():
     for message in st.session_state.messages:
-        avatar = "🧑‍🎓" if message["role"] == "user" else "🤖"
-        chat_ui.message(message["content"], avatar=avatar, is_user=message["role"] == "user")
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
 def handle_chat_interaction(client, custom_instructions):
-    if prompt := chat_ui.chat_input():
+    if prompt := st.chat_input("What's on your mind?"):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        chat_ui.message(prompt, avatar="🧑‍🎓", is_user=True)
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
         conversation_context = []
         if custom_instructions:
