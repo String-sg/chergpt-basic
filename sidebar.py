@@ -19,7 +19,11 @@ def setup_sidebar():
         st.title("Settings")
         with st.expander("🔑 Admin login"):
             admin_password = st.text_input("Educators only", type="password", key="admin_password")
-            if admin_password == os.environ["ADMIN_PASSWORD"]:
+            stored_password = os.environ.get("ADMIN_PASSWORD")
+            if not stored_password:
+                st.error("Admin password not configured. Please set ADMIN_PASSWORD in Replit Secrets.")
+                st.session_state["is_admin"] = False
+            elif admin_password == stored_password:
                 st.session_state["is_admin"] = True
                 st.success("Authenticated as Admin")
             elif admin_password:  
