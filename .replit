@@ -11,3 +11,18 @@ deploymentTarget = "cloudrun"
 [[ports]]
 localPort = 8501
 externalPort = 80
+
+[[ports]]
+localPort = 8502
+externalPort = 3000
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 38655875
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "streamlit run --server.headless true main.py"
