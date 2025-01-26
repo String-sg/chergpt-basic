@@ -6,6 +6,7 @@ channel = "stable-24_05"
 
 [deployment]
 run = ["sh", "-c", "streamlit run main.py"]
+deploymentTarget = "cloudrun"
 
 [[ports]]
 localPort = 8501
