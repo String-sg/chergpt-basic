@@ -1,6 +1,7 @@
 
 import streamlit as st
 from openai import OpenAI
+import os
 from app.chatlog.chatlog_handler import insert_chat_log
 
 def initialize_chat_state():

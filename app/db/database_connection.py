@@ -5,7 +5,7 @@ import streamlit as st
 
 def connect_to_db():
     try:
-        conn = psycopg2.connect(st.secrets["DB_CONNECTION"])
+        conn = psycopg2.connect(os.environ["DB_CONNECTION"])
         logging.info("Successfully connected to the database. This is NeonDB if you followed the setup instructions")
         return conn
     except Exception as e:

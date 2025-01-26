@@ -24,7 +24,7 @@ def main():
     initialize_chat_state()
 
     # Initialize chat components
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     existing_instructions = get_latest_instructions()
     
     # Display and handle chat
