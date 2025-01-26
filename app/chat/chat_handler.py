@@ -11,17 +11,17 @@ def initialize_chat_state():
     if "conversation_id" not in st.session_state:
         st.session_state["conversation_id"] = str(uuid.uuid4())
 
+from streamlit_chat_ui_improvement import chat_ui
+
 def display_chat_history():
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+        avatar = "🧑‍🎓" if message["role"] == "user" else "🤖"
+        chat_ui.message(message["content"], avatar=avatar, is_user=message["role"] == "user")
 
 def handle_chat_interaction(client, custom_instructions):
-    if prompt := st.chat_input("What is up?"):
+    if prompt := chat_ui.chat_input():
         st.session_state.messages.append({"role": "user", "content": prompt})
-        
-        with st.chat_message("user"):
-            st.markdown(prompt)
+        chat_ui.message(prompt, avatar="🧑‍🎓", is_user=True)
 
         conversation_context = []
         if custom_instructions:
