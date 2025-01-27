@@ -88,7 +88,7 @@ def get_app_description():
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
-        return "Default app description here."
+        return "Chatbot to support teaching and learning."
 
     try:
         with conn.cursor() as cur:
@@ -109,7 +109,7 @@ def get_app_title():
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
-        return "Default app title here."
+        return "CherGPT"
 
     try:
         with conn.cursor() as cur:
