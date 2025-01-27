@@ -9,7 +9,7 @@ from app.chatlog.chatlog_handler import initialize_chatlog_table
 from app.chat.chat_handler import (initialize_chat_state, display_chat_history,
                                    handle_chat_interaction)
 from app.db.database_connection import (get_app_description, get_app_title,
-                                        initialize_db)
+                                        initialize_db, connect_to_db)
 from app.instructions.instructions_handler import get_latest_instructions
 from sidebar import setup_sidebar
 
