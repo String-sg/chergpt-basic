@@ -1,8 +1,9 @@
 
-/* Import fonts */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Montserrat:wght@400;600&display=swap');
+/* Reset and base styles */
+* {
+    font-family: 'Space Grotesk', 'Montserrat', sans-serif !important;
+}
 
-/* Base styles */
 div.stApp {
     background-color: #33373B;
 }
@@ -17,16 +18,26 @@ h1, h2, h3, h4, h5, h6 {
     color: white !important;
 }
 
-div, p, span, button, input {
+div, p, span {
     font-family: 'Montserrat', sans-serif !important;
     color: white !important;
 }
 
-/* Header and logo styles */
-div[data-testid="stHeader"] {
-    background-color: transparent;
+/* Button styles */
+.stButton > button {
+    background-color: #75F8CC !important;
+    color: #33373B !important;
+    border: none !important;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
+.stButton > button:hover {
+    background-color: #75F8CC !important;
+    color: #33373B !important;
+    border-color: #75F8CC !important;
+}
+
+/* Logo and title container */
 .title-container {
     display: flex;
     align-items: center;
@@ -34,26 +45,14 @@ div[data-testid="stHeader"] {
     margin-bottom: 2rem;
 }
 
-.title-logo {
-    width: 40px;
-    height: 40px;
-}
-
 .title-text {
+    font-family: 'Space Grotesk', sans-serif !important;
     font-size: 2.5rem;
     margin: 0;
+    color: white !important;
 }
 
-/* Button styles */
-.stButton > button {
-    background-color: #75F8CC !important;
-    color: #33373B !important;
-    font-family: 'Montserrat', sans-serif !important;
-    border: none !important;
-}
-
-.stButton > button:hover {
-    background-color: #75F8CC !important;
-    border-color: #75F8CC !important;
-    color: #33373B !important;
+/* Header transparency */
+div[data-testid="stHeader"] {
+    background-color: transparent;
 }
