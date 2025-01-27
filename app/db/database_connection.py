@@ -39,9 +39,10 @@ def initialize_db():
             # Initialize instructions table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS instructions (
-                    id SERIAL PRIMARY KEY,
-                    content TEXT,
-                    timestamp TIMESTAMP DEFAULT current_timestamp
+                    id INTEGER DEFAULT 1 PRIMARY KEY,
+                    content TEXT NOT NULL,
+                    timestamp TIMESTAMP DEFAULT current_timestamp,
+                    CHECK (id = 1)
                 );
             """)
 

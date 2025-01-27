@@ -97,9 +97,11 @@ def handle_instructions_edit():
         height=CUSTOM_INSTRUCTIONS_HEIGHT
     )
     if st.button("Save Instructions"):
-        update_instructions(custom_instructions)
-        st.success("Instructions updated successfully")
-        st.rerun()
+        if update_instructions(custom_instructions):
+            st.success("Instructions updated successfully")
+            st.rerun()
+        else:
+            st.error("Failed to update instructions")
 
 def handle_chatlog_controls():
     """Handle chatlog viewing and export controls."""

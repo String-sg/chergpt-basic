@@ -23,19 +23,25 @@ def update_instructions(new_instructions):
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
-        return
+        return False
 
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO instructions (content)
-                VALUES (%s)
+                INSERT INTO instructions (id, content)
+                VALUES (1, %s)
                 ON CONFLICT (id)
-                DO UPDATE SET content = EXCLUDED.content;
+                DO UPDATE SET 
+                    content = EXCLUDED.content,
+                    timestamp = current_timestamp
+                RETURNING id;
             """, (new_instructions,))
+            result = cur.fetchone()
             conn.commit()
             logging.info("Instructions updated successfully.")
+            return result is not None
     except Exception as e:
         logging.error(f"Error updating instructions: {e}")
+        return False
     finally:
         conn.close()
