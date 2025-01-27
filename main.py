@@ -37,16 +37,26 @@ def main():
     
     if not st.session_state.authenticated_email:
         st.title("Login")
-        email = st.text_input("Enter your MOE email")
-        if st.button("Send Login Link"):
-            if email and is_valid_email_domain(email):
-                magic_link = generate_magic_link(email)
-                if send_magic_link(email, magic_link):
-                    st.success("Login link sent! Please check your email.")
+        
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            st.subheader("Login")
+            email = st.text_input("Enter your MOE email")
+            if st.button("Send Login Link"):
+                if email and is_valid_email_domain(email):
+                    magic_link = generate_magic_link(email)
+                    if send_magic_link(email, magic_link):
+                        st.success("Login link sent! Please check your email.")
+                    else:
+                        st.error("Failed to send login link.")
                 else:
-                    st.error("Failed to send login link.")
-            else:
-                st.error("Please use a valid MOE email address.")
+                    st.error("Please use a valid MOE email address.")
+                    
+        with col2:
+            st.subheader("CherGPT")
+            st.write("Chat assistant for teaching and learning")
+            
         return
 
     # Initialize app state
