@@ -21,12 +21,6 @@ def main():
     if 'authenticated_email' not in st.session_state:
         st.session_state.authenticated_email = None
 
-    # Check for shared session first
-    session_id = st.query_params.get('session')
-    if session_id:
-        st.session_state.current_session = session_id
-        
-    # Then check authentication
     token = st.query_params.get('token', None)
     if token:
         email = verify_token(token)
@@ -37,8 +31,7 @@ def main():
 
     dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
     
-    # Only require login if no session is present
-    if not st.session_state.authenticated_email and not session_id:
+    if not st.session_state.authenticated_email:
         st.title("CherGPT")
 
         col1, col2 = st.columns([1, 1])
@@ -87,17 +80,7 @@ def main():
 
     # Initialize chat client and settings
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-    
-    # Check for shared session
-    session_id = st.query_params.get('session')
-    if session_id:
-        session_prompt = get_session_prompt(session_id)
-        if session_prompt:
-            existing_instructions = session_prompt
-        else:
-            existing_instructions = get_latest_instructions()
-    else:
-        existing_instructions = get_latest_instructions()
+    existing_instructions = get_latest_instructions()
 
     # Display and handle chat
     display_chat_history()

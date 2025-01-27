@@ -1,3 +1,4 @@
+
 """
 Handles chat-related functionality including state management and message processing.
 """
@@ -13,7 +14,7 @@ def initialize_chat_state():
         "messages": [],
         "conversation_id": str(uuid.uuid4())
     }
-
+    
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
@@ -24,7 +25,7 @@ def display_chat_history():
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-def handle_chat_interaction(client: OpenAI, custom_instructions: str, email: str): #Added email parameter
+def handle_chat_interaction(client: OpenAI, custom_instructions: str):
     """Handle user chat input and generate AI response."""
     if prompt := st.chat_input("What's on your mind?"):
         # Display user message
@@ -45,7 +46,7 @@ def handle_chat_interaction(client: OpenAI, custom_instructions: str, email: str
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-
+            
             for response in client.chat.completions.create(
                 model=st.session_state["openai_model"],
                 messages=conversation_context,
@@ -53,16 +54,15 @@ def handle_chat_interaction(client: OpenAI, custom_instructions: str, email: str
             ):
                 full_response += (response.choices[0].delta.content or "")
                 message_placeholder.markdown(full_response + "▌")
-
+            
             # Save chat log and update display
             insert_chat_log(
-                email, # Added email here
                 prompt,
                 full_response,
                 st.session_state["conversation_id"]
             )
             message_placeholder.markdown(full_response)
-
+            
         st.session_state.messages.append({
             "role": "assistant",
             "content": full_response

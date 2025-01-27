@@ -2,7 +2,6 @@
 import psycopg2
 import logging
 import streamlit as st
-import os
 
 def connect_to_db():
     try:
@@ -41,7 +40,6 @@ def initialize_db():
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS instructions (
                     id SERIAL PRIMARY KEY,
-                    email TEXT NOT NULL,
                     content TEXT,
                     timestamp TIMESTAMP DEFAULT current_timestamp
                 );
@@ -54,7 +52,7 @@ def initialize_db():
                     description TEXT
                 );
             """)
-
+            
             # Ensure there is always one row in app_info to update
             cur.execute("""
                 INSERT INTO app_info (id, description)
@@ -69,7 +67,7 @@ def initialize_db():
                     description TEXT
                 );
             """)
-
+            
             # Ensure there is always one row in app_title to update
             cur.execute("""
                 INSERT INTO app_title (id, description)
@@ -97,19 +95,6 @@ def initialize_db():
                     created_at TIMESTAMP DEFAULT current_timestamp,
                     expires_at TIMESTAMP,
                     is_active BOOLEAN DEFAULT true
-                );
-            """)
-
-            # Initialize chat_logs table
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS chat_logs (
-                    id SERIAL PRIMARY KEY,
-                    email TEXT NOT NULL,
-                    timestamp TIMESTAMP DEFAULT current_timestamp,
-                    prompt TEXT,
-                    response TEXT,
-                    conversation_id UUID,
-                    shared BOOLEAN DEFAULT false
                 );
             """)
 
@@ -260,7 +245,7 @@ def get_session_prompt(session_id):
                 SELECT up.prompt_content 
                 FROM sessions s 
                 JOIN user_prompts up ON s.prompt_id = up.id 
-                WHERE s.id::text = %s AND s.is_active = true AND s.expires_at > current_timestamp;
+                WHERE s.id = %s AND s.is_active = true AND s.expires_at > current_timestamp;
             """, (session_id,))
             result = cur.fetchone()
             return result[0] if result else None
