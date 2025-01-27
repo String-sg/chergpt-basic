@@ -1,4 +1,3 @@
-
 """
 Handles the sidebar UI and admin functionality.
 """
@@ -157,7 +156,7 @@ def setup_prompt_management():
                     st.error("Failed to save prompt")
             else:
                 st.error("Please fill in both fields")
-        
+
         st.divider()
         st.subheader("Your Prompts")
         prompts = get_user_prompts(st.session_state.authenticated_email)
