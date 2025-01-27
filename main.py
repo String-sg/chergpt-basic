@@ -20,7 +20,35 @@ from app.db.database_connection import (
 from app.instructions.instructions_handler import get_latest_instructions
 from sidebar import setup_sidebar
 
+from app.auth.auth_handler import is_valid_email_domain, generate_magic_link, send_magic_link, verify_token
+
 def main():
+    # Check authentication
+    if 'authenticated_email' not in st.session_state:
+        st.session_state.authenticated_email = None
+        
+    token = st.experimental_get_query_params().get('token', [None])[0]
+    if token:
+        email = verify_token(token)
+        if email:
+            st.session_state.authenticated_email = email
+            st.experimental_set_query_params()
+            st.rerun()
+    
+    if not st.session_state.authenticated_email:
+        st.title("Login")
+        email = st.text_input("Enter your MOE email")
+        if st.button("Send Login Link"):
+            if email and is_valid_email_domain(email):
+                magic_link = generate_magic_link(email)
+                if send_magic_link(email, magic_link):
+                    st.success("Login link sent! Please check your email.")
+                else:
+                    st.error("Failed to send login link.")
+            else:
+                st.error("Please use a valid MOE email address.")
+        return
+
     # Initialize app state
     app_title = get_app_title()
     app_description = get_app_description() or "Chatbot to support teaching and learning"
