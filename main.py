@@ -78,13 +78,25 @@ def main():
     initialize_chatlog_table()
     initialize_chat_state()
 
-    # Initialize chat client and settings
+    # Initialize chat client
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-    existing_instructions = get_latest_instructions()
-
-    # Display and handle chat
-    display_chat_history()
-    handle_chat_interaction(client, existing_instructions)
+    
+    # Check for shared session
+    session_id = st.query_params.get('session')
+    if session_id:
+        session_data = get_session_prompt(session_id)
+        if session_data:
+            prompt_content, prompt_name = session_data
+            st.info(f"Using shared prompt: {prompt_name}")
+            display_chat_history()
+            handle_chat_interaction(client, prompt_content)
+        else:
+            st.error("Invalid or expired session link")
+    else:
+        # Regular chat with admin instructions
+        existing_instructions = get_latest_instructions()
+        display_chat_history()
+        handle_chat_interaction(client, existing_instructions)
 
 
 if __name__ == "__main__":
