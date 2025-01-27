@@ -48,7 +48,15 @@ def main():
         return
 
     if not st.session_state.authenticated_email:
-        st.title("CherGPT")
+        st.markdown("""
+        <style>
+        @import url('.streamlit/custom.css');
+        </style>
+        <div class="stTitle">
+            <img src="app/static/logo.png" class="title-logo" />
+            <h1>CherGPT</h1>
+        </div>
+    """, unsafe_allow_html=True)
 
         col1, col2 = st.columns([1, 1])
 

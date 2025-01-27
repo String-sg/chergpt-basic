@@ -1,0 +1,29 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Montserrat:wght@400;600&display=swap');
+
+[data-testid="stAppViewContainer"] {
+    background-color: #33373B;
+}
+
+.stTitle, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif !important;
+}
+
+body, p, div, span {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+div[data-testid="stHeader"] {
+    background-color: transparent;
+}
+
+.stTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.title-logo {
+    height: 40px;
+    width: auto;
+}
