@@ -1,6 +1,8 @@
 
+/* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Montserrat:wght@400;600&display=swap');
 
+/* Base styles */
 div.stApp {
     background-color: #33373B;
 }
@@ -9,16 +11,18 @@ div.stApp {
     padding-top: 2rem;
 }
 
+/* Font styles */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif !important;
-    color: white;
+    color: white !important;
 }
 
-div, p, span {
+div, p, span, button, input {
     font-family: 'Montserrat', sans-serif !important;
-    color: white;
+    color: white !important;
 }
 
+/* Header and logo styles */
 div[data-testid="stHeader"] {
     background-color: transparent;
 }
@@ -40,22 +44,16 @@ div[data-testid="stHeader"] {
     margin: 0;
 }
 
-/* Primary color and hover effects */
+/* Button styles */
 .stButton > button {
     background-color: #75F8CC !important;
     color: #33373B !important;
+    font-family: 'Montserrat', sans-serif !important;
+    border: none !important;
 }
 
 .stButton > button:hover {
     background-color: #75F8CC !important;
     border-color: #75F8CC !important;
     color: #33373B !important;
-}
-
-/* Make sure image path is absolute */
-.title-logo {
-    content: url("/app/static/logo.png");
-    width: 40px;
-    height: 40px;
-    display: block;
 }
