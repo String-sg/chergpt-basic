@@ -20,6 +20,10 @@ def get_latest_instructions():
         conn.close()
 
 def update_instructions(new_instructions):
+    if not new_instructions:
+        logging.error("Instructions content is empty")
+        return False
+        
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
@@ -37,11 +41,16 @@ def update_instructions(new_instructions):
                 RETURNING id;
             """, (new_instructions,))
             result = cur.fetchone()
+            if not result:
+                logging.error("No rows were affected by the update")
             conn.commit()
             logging.info("Instructions updated successfully.")
             return result is not None
     except Exception as e:
-        logging.error(f"Error updating instructions: {e}")
+        logging.error(f"Error updating instructions: {str(e)}")
+        if hasattr(e, 'pgerror'):
+            logging.error(f"PostgreSQL error: {e.pgerror}")
         return False
     finally:
-        conn.close()
+        if conn:
+            conn.close()
