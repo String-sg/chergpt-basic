@@ -52,18 +52,18 @@ def main():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Montserrat:wght@400;600&display=swap');
         
+        * {
+            font-family: 'Montserrat', sans-serif !important;
+        }
+        
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Space Grotesk', sans-serif !important;
             color: white !important;
         }
-        
-        div, p, span {
+
+        div, p, span, input, button, textarea, .element-container {
             font-family: 'Montserrat', sans-serif !important;
             color: white !important;
-        }
-        
-        .stButton > button {
-            font-family: 'Montserrat', sans-serif !important;
         }
         </style>
         <h1 class="title-text">CherGPT</h1>
