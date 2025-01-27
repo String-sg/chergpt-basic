@@ -30,7 +30,7 @@ def main():
             st.rerun()
 
     dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
-    
+
     # Check for public chat link
     public_chat_id = st.query_params.get('chat_id', None)
     if public_chat_id:
@@ -49,8 +49,7 @@ def main():
         col1, col2 = st.columns([1, 1])
 
         with col1:
-            st.subheader("Login")
-            email = st.text_input("Enter your MOE email")
+            email = st.text_input("Login with @moe, @school or @string email")
 
             if dev_mode:
                 if st.button("Dev Login"):

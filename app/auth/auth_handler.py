@@ -10,7 +10,7 @@ try:
 except ImportError:
     RESEND_AVAILABLE = False
 
-ALLOWED_DOMAINS = ['moe.edu.sg', 'moe.gov.sg', 'schools.gov.sg']
+ALLOWED_DOMAINS = ['moe.edu.sg', 'moe.gov.sg', 'schools.gov.sg', 'string.sg']
 
 
 def is_valid_email_domain(email):
@@ -23,15 +23,15 @@ def generate_magic_link(email):
     if not jwt_secret:
         st.error("JWT_SECRET_KEY not found in environment variables")
         return None
-        
+
     expiration = datetime.utcnow() + timedelta(minutes=5)
     try:
         token = jwt.encode({
             'email': email,
             'exp': expiration
         },
-        jwt_secret,
-        algorithm='HS256')
+                           jwt_secret,
+                           algorithm='HS256')
         base_url = os.environ.get('BASE_URL', 'https://your-repl-url.repl.co')
         return f"{base_url}/verify?token={token}"
     except Exception as e:
