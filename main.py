@@ -1,11 +1,24 @@
 
+"""
+Main application file for CherGPT - A custom chat assistant.
+Handles initialization and core application flow.
+"""
+import os
 import streamlit as st
 from openai import OpenAI
 from app.chatlog.chatlog_handler import initialize_chatlog_table
-from app.chat.chat_handler import initialize_chat_state, display_chat_history, handle_chat_interaction
-from sidebar import setup_sidebar
-from app.db.database_connection import get_app_description, get_app_title, initialize_db
+from app.chat.chat_handler import (
+    initialize_chat_state,
+    display_chat_history,
+    handle_chat_interaction
+)
+from app.db.database_connection import (
+    get_app_description,
+    get_app_title,
+    initialize_db
+)
 from app.instructions.instructions_handler import get_latest_instructions
+from sidebar import setup_sidebar
 
 def main():
     # Initialize app state
@@ -23,7 +36,7 @@ def main():
     initialize_chatlog_table()
     initialize_chat_state()
 
-    # Initialize chat components
+    # Initialize chat client and settings
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     existing_instructions = get_latest_instructions()
     
