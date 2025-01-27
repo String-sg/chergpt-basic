@@ -1,5 +1,4 @@
 # for database connection and initialization
-import os
 import psycopg2
 import logging
 import streamlit as st
@@ -43,29 +42,6 @@ def initialize_db():
                     id SERIAL PRIMARY KEY,
                     content TEXT,
                     timestamp TIMESTAMP DEFAULT current_timestamp
-                );
-            """)
-
-            # Initialize user_prompts table first
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS user_prompts (
-                    id SERIAL PRIMARY KEY,
-                    email TEXT NOT NULL,
-                    prompt_name TEXT NOT NULL,
-                    prompt_content TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT current_timestamp
-                );
-            """)
-
-            # Initialize sessions table after user_prompts
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS sessions (
-                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                    email TEXT NOT NULL,
-                    prompt_id INTEGER REFERENCES user_prompts(id),
-                    created_at TIMESTAMP DEFAULT current_timestamp,
-                    expires_at TIMESTAMP,
-                    is_active BOOLEAN DEFAULT true
                 );
             """)
 
@@ -266,13 +242,13 @@ def get_session_prompt(session_id):
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT up.prompt_content, up.prompt_name
+                SELECT up.prompt_content 
                 FROM sessions s 
                 JOIN user_prompts up ON s.prompt_id = up.id 
                 WHERE s.id::text = %s AND s.is_active = true AND s.expires_at > current_timestamp;
             """, (session_id,))
             result = cur.fetchone()
-            return result if result else None
+            return result[0] if result else None
     finally:
         if conn:
             conn.close()
