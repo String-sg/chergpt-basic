@@ -56,12 +56,9 @@ def send_magic_link(email, magic_link):
         st.write(f"Response Headers: {response.headers}")
         st.write(f"Response Body: {response.body.decode() if response.body else 'No body'}")
         
-        # Check SendGrid sender verification
-        try:
-            sender_response = sg.client.senders.get()
-            st.write(f"Verified Senders: {sender_response.body}")
-        except Exception as e:
-            st.error(f"Error checking verified senders: {str(e)}")
+        # Log basic sending details without checking verification
+        st.write("Email sending attempt completed.")
+        st.info("Note: Please ensure the sender email (info@string.sg) is verified in SendGrid to improve delivery.")
             
         return response.status_code == 202
     except Exception as e:
