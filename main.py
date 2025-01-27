@@ -72,46 +72,35 @@ def main():
             font-family: 'Montserrat', sans-serif !important;
             color: white !important;
         }
-
-        .logo-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
         </style>
-        <div class="logo-container">
-            <img src="app/static/logo.png" alt="CherGPT Logo" style="width: 80px; height: 80px;">
-            <h1 class="title-text">CherGPT</h1>
-        </div>
         """, unsafe_allow_html=True)
 
-        col1, col2 = st.columns([1, 1])
+        st.title("CherGPT")
+        
+        st.subheader("Your chat assistant")
+        st.write("for teaching and learning")
+        st.write("✅ custom prompts and chatlog export")
+        st.write("❌ knowledge base, custom docs or RAG")
+        
+        st.markdown("---")
+        
+        email = st.text_input("Login with @moe, @school or @string email")
 
-        with col1:
-            email = st.text_input("Login with @moe, @school or @string email")
-
-            if dev_mode:
-                if st.button("Dev Login"):
-                    st.session_state.authenticated_email = email
-                    st.rerun()
-            else:
-                if st.button("Send Login Link"):
-                    if email and is_valid_email_domain(email):
-                        magic_link = generate_magic_link(email)
-                        if magic_link and send_magic_link(email, magic_link):
-                            st.success(
-                                "Login link sent! Please check your email.")
-                        else:
-                            st.error("Failed to send login link.")
+        if dev_mode:
+            if st.button("Dev Login"):
+                st.session_state.authenticated_email = email
+                st.rerun()
+        else:
+            if st.button("Send Login Link"):
+                if email and is_valid_email_domain(email):
+                    magic_link = generate_magic_link(email)
+                    if magic_link and send_magic_link(email, magic_link):
+                        st.success(
+                            "Login link sent! Please check your email.")
                     else:
-                        st.error("Please use a valid MOE email address.")
-
-        with col2:
-            st.subheader("Your chat assistant ")
-            st.write("for teaching and learning")
-            st.write("✅ custom prompts and chatlog export")
-            st.write("❌ knowledge base, custom docs or RAG")
+                        st.error("Failed to send login link.")
+                else:
+                    st.error("Please use a valid MOE email address.")
         return
 
     # Initialize app state
