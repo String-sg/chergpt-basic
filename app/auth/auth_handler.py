@@ -34,7 +34,7 @@ def send_magic_link(email, magic_link):
             return False
             
         api_key = os.environ.get('RESEND_API_KEY')
-        from_email = os.environ.get('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
+        from_email = os.environ.get('RESEND_FROM_EMAIL', 'info@string.sg')
         
         # Debug logging
         st.write("Email Details:")
