@@ -30,6 +30,18 @@ def main():
             st.rerun()
 
     dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
+    
+    # Check for public chat link
+    public_chat_id = st.query_params.get('chat_id', None)
+    if public_chat_id:
+        st.session_state.authenticated_email = "public_user"
+        existing_instructions = get_latest_instructions()
+        st.title("CherGPT Public Chat")
+        initialize_chat_state()
+        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        display_chat_history()
+        handle_chat_interaction(client, existing_instructions)
+        return
 
     if not st.session_state.authenticated_email:
         st.title("CherGPT")

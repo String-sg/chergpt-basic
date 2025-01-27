@@ -103,6 +103,13 @@ def handle_description_edit():
 def handle_instructions_edit():
     """Handle custom instructions editing."""
     st.session_state['existing_instructions'] = get_latest_instructions()
+    
+    # Generate public link
+    base_url = os.environ.get('BASE_URL', st.experimental_get_query_params().get('server_url', [''])[0])
+    if base_url and st.session_state["is_admin"]:
+        public_link = f"{base_url}?chat_id=public"
+        st.info(f"Public chat link: {public_link}")
+    
     custom_instructions = st.text_area(
         "Edit and save to guide interactions",
         value=st.session_state['existing_instructions'],
