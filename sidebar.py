@@ -21,10 +21,7 @@ from app.db.database_connection import (
     get_app_description,
     update_app_description,
     get_app_title,
-    update_app_title,
-    save_user_prompt,
-    get_user_prompts,
-    create_session
+    update_app_title
 )
 
 CUSTOM_INSTRUCTIONS_HEIGHT = 300
@@ -137,42 +134,9 @@ def handle_destructive_actions():
         st.success("Instructions table dropped")
         st.rerun()
 
-def setup_prompt_management():
-    """Handle user's custom prompts."""
-    if not st.session_state.authenticated_email:
-        return
-        
-    with st.expander("🎯 My Custom Prompts"):
-        with st.form("prompt_form"):
-            prompt_name = st.text_input("Prompt Name")
-            prompt_content = st.text_area("Prompt Content", height=200)
-            submit_button = st.form_submit_button("Save Prompt")
-            
-            if submit_button and prompt_name and prompt_content:
-                prompt_id = save_user_prompt(st.session_state.authenticated_email, prompt_name, prompt_content)
-                if prompt_id:
-                    st.success("Prompt saved successfully!")
-                    st.experimental_rerun()
-                    
-        # Display existing prompts
-        prompts = get_user_prompts(st.session_state.authenticated_email)
-        if prompts:
-            st.write("Your Prompts")
-            for prompt_id, name, content in prompts:
-                with st.expander(name):
-                    st.text_area("Content", value=content, disabled=True, key=f"content_{prompt_id}")
-                    if st.button(f"Share {name}", key=f"share_{prompt_id}"):
-                        session_id = create_session(st.session_state.authenticated_email, prompt_id)
-                        if session_id:
-                            base_url = os.getenv('BASE_URL', 'https://chergpt.replit.app')
-                            share_url = f"{base_url}?session={session_id}"
-                            st.code(share_url)
-                            st.info("Anyone can use this link to start a chat with your prompt!")
-
 def setup_sidebar():
     """Main sidebar setup function."""
     with st.sidebar:
         st.title("Settings")
-        setup_prompt_management()
         setup_admin_authentication()
         setup_admin_controls()
