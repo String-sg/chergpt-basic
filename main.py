@@ -49,13 +49,24 @@ def main():
 
     if not st.session_state.authenticated_email:
         st.markdown("""
-        <div class="title-container">
-            <img src="app/static/logo.png" class="title-logo" alt="CherGPT Logo"/>
-            <h1 class="title-text">CherGPT</h1>
-        </div>
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Montserrat:wght@400;600&display=swap');
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif !important;
+            color: white !important;
+        }
+        
+        div, p, span {
+            font-family: 'Montserrat', sans-serif !important;
+            color: white !important;
+        }
+        
+        .stButton > button {
+            font-family: 'Montserrat', sans-serif !important;
+        }
         </style>
+        <h1 class="title-text">CherGPT</h1>
         """, unsafe_allow_html=True)
 
         col1, col2 = st.columns([1, 1])
