@@ -34,6 +34,18 @@ def load_summaries():
 
 def setup_admin_authentication():
     """Handle admin authentication in sidebar."""
+    # Check for dev mode or string.sg domain
+    dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
+    email = st.session_state.get('authenticated_email', '')
+    is_string_domain = email.endswith('@string.sg')
+    
+    if dev_mode or is_string_domain:
+        st.session_state["is_admin"] = True
+        with st.expander("🔑 Admin Status"):
+            st.success("Admin access granted automatically")
+        return
+
+    # Regular admin authentication
     with st.expander("🔑 Admin login"):
         admin_password = st.text_input("Educators only", type="password", key="admin_password")
         stored_password = os.environ.get("ADMIN_PASSWORD")
