@@ -32,7 +32,7 @@ def main():
     token = st.query_params.get('token', None)
     if not token and 'verify' in st.query_params:
         token = st.query_params.get('verify', None)
-        
+
     if token:
         email = verify_token(token)
         if email:
@@ -73,17 +73,17 @@ def main():
             color: white !important;
         }
         </style>
-        """, unsafe_allow_html=True)
+        """,
+                    unsafe_allow_html=True)
 
         st.title("CherGPT")
-        
-        st.subheader("Your chat assistant")
-        st.write("for teaching and learning")
+
+        st.write("Your chat assistant for teaching and learning")
         st.write("✅ custom prompts and chatlog export")
         st.write("❌ knowledge base, custom docs or RAG")
-        
+
         st.markdown("---")
-        
+
         email = st.text_input("Login with @moe, @school or @string email")
 
         if dev_mode:
@@ -95,8 +95,7 @@ def main():
                 if email and is_valid_email_domain(email):
                     magic_link = generate_magic_link(email)
                     if magic_link and send_magic_link(email, magic_link):
-                        st.success(
-                            "Login link sent! Please check your email.")
+                        st.success("Login link sent! Please check your email.")
                     else:
                         st.error("Failed to send login link.")
                 else:
