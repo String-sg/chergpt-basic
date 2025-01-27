@@ -65,8 +65,18 @@ def main():
             font-family: 'Montserrat', sans-serif !important;
             color: white !important;
         }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
         </style>
-        <h1 class="title-text">CherGPT</h1>
+        <div class="logo-container">
+            <img src="app/static/logo.png" alt="CherGPT Logo" style="width: 80px; height: 80px;">
+            <h1 class="title-text">CherGPT</h1>
+        </div>
         """, unsafe_allow_html=True)
 
         col1, col2 = st.columns([1, 1])
