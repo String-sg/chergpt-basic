@@ -1,9 +1,15 @@
 
 import os
-import resend
 from jose import jwt
 import streamlit as st
 from datetime import datetime, timedelta
+
+# Try importing resend, fallback to basic error if not available
+try:
+    import resend
+    RESEND_AVAILABLE = True
+except ImportError:
+    RESEND_AVAILABLE = False
 
 ALLOWED_DOMAINS = ['moe.edu.sg', 'moe.gov.sg', 'schools.gov.sg']
 
@@ -23,6 +29,10 @@ def generate_magic_link(email):
 
 def send_magic_link(email, magic_link):
     try:
+        if not RESEND_AVAILABLE:
+            st.error("Resend package not installed. Please run 'pip install resend' or contact administrator.")
+            return False
+            
         api_key = os.environ.get('RESEND_API_KEY')
         from_email = os.environ.get('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
         
