@@ -36,12 +36,6 @@ def send_magic_link(email, magic_link):
         api_key = os.environ.get('RESEND_API_KEY')
         from_email = os.environ.get('RESEND_FROM_EMAIL', 'info@string.sg')
         
-        # Debug logging
-        st.write("Email Details:")
-        st.write(f"To: {email}")
-        st.write(f"From: {from_email} (Using Resend)")
-        st.write(f"Magic link: {magic_link}")
-        
         if not api_key:
             st.error("Resend API key not found in environment variables")
             return False
@@ -53,14 +47,6 @@ def send_magic_link(email, magic_link):
             "subject": "Your Login Link",
             "html": f'Click <a href="{magic_link}">here</a> to login to CherGPT.'
         })
-        
-        # Detailed logging
-        st.write("Resend Details:")
-        st.write(f"From Email: {from_email}")
-        st.write(f"To Email: {email}")
-        
-        # Log basic sending details
-        st.write("Email sending attempt completed.")
         return True
     except Exception as e:
         st.error(f"Resend Error: {str(e)}")
