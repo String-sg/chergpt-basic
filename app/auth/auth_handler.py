@@ -47,8 +47,22 @@ def send_magic_link(email, magic_link):
             html_content=f'Click <a href="{magic_link}">here</a> to login to CherGPT.'
         )
         response = sg.send(message)
-        st.write(f"SendGrid Response Status Code: {response.status_code}")
-        st.write(f"SendGrid Response Headers: {response.headers}")
+        
+        # Detailed logging
+        st.write("SendGrid Details:")
+        st.write(f"From Email: {from_email}")
+        st.write(f"To Email: {email}")
+        st.write(f"Status Code: {response.status_code}")
+        st.write(f"Response Headers: {response.headers}")
+        st.write(f"Response Body: {response.body.decode() if response.body else 'No body'}")
+        
+        # Check SendGrid sender verification
+        try:
+            sender_response = sg.client.senders.get()
+            st.write(f"Verified Senders: {sender_response.body}")
+        except Exception as e:
+            st.error(f"Error checking verified senders: {str(e)}")
+            
         return response.status_code == 202
     except Exception as e:
         st.error(f"SendGrid Error: {str(e)}")
