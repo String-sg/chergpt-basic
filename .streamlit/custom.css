@@ -1,29 +1,41 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Montserrat:wght@400;600&display=swap');
 
-[data-testid="stAppViewContainer"] {
+div.stApp {
     background-color: #33373B;
 }
 
-.stTitle, h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif !important;
+.main .block-container {
+    padding-top: 2rem;
 }
 
-body, p, div, span {
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif !important;
+    color: white;
+}
+
+div, p, span {
     font-family: 'Montserrat', sans-serif !important;
+    color: white;
 }
 
 div[data-testid="stHeader"] {
     background-color: transparent;
 }
 
-.stTitle {
+.title-container {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
 .title-logo {
+    width: 40px;
     height: 40px;
-    width: auto;
+}
+
+.title-text {
+    font-size: 2.5rem;
+    margin: 0;
 }
