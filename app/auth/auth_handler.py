@@ -27,6 +27,11 @@ def send_magic_link(email, magic_link):
         api_key = os.environ.get('SENDGRID_API_KEY')
         from_email = os.environ.get('SENDGRID_FROM_EMAIL')
         
+        # Debug logging
+        st.write(f"Sending to: {email}")
+        st.write(f"From email: {from_email}")
+        st.write(f"Magic link: {magic_link}")
+        
         if not api_key:
             st.error("SendGrid API key not found in environment variables")
             return False
@@ -43,6 +48,7 @@ def send_magic_link(email, magic_link):
         )
         response = sg.send(message)
         st.write(f"SendGrid Response Status Code: {response.status_code}")
+        st.write(f"SendGrid Response Headers: {response.headers}")
         return response.status_code == 202
     except Exception as e:
         st.error(f"SendGrid Error: {str(e)}")
