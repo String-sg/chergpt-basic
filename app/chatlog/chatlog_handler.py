@@ -158,34 +158,41 @@ def drop_chatlog_table():
 def generate_summary_for_each_group(batches):
     summaries = {}
     for idx, (uuid, logs) in enumerate(batches.items(), start=1):
+        if not logs:  # Skip empty conversations
+            continue
+            
         combined_logs = "\n".join(logs)
-        # Structuring the system message to include the task for summarization explicitly
-        system_message = "You are a highly intelligent assistant. Your task is to summarize the conversation."
-
-        # Preparing the messages for the chat completion API call
-        messages = [
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": combined_logs}
-        ]
+        system_message = "You are an assistant that summarizes conversations. Create a concise summary of the key points discussed."
+        
         try:
-            client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+            client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=messages,
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": combined_logs}
+                ],
+                temperature=0.7,
+                max_tokens=150
             )
-            if response and 'choices' in response and len(response['choices']) > 0:
-                summary_text = response.choices[0].message['content'].strip()
-                summaries[uuid] = summary_text  # Store just the summary text here
-            else:
-                summaries[uuid] = "No summary could be generated for this group."
+            
+            summary_text = response.choices[0].message.content.strip()
+            summaries[uuid] = summary_text if summary_text else "No meaningful content to summarize."
+            
         except Exception as e:
-            summaries[uuid] = "Failed to generate summary due to an error: " + str(e)
+            logging.error(f"Summary generation failed for UUID {uuid}: {str(e)}")
+            summaries[uuid] = f"Failed to generate summary: {str(e)}"
+            
     return summaries
 
 def compile_summaries(summaries):
-    compiled_output = "Top level summary:\n"
+    if not summaries:
+        return "No chat conversations found to summarize."
+        
+    compiled_output = "# Chat Summaries\n\n"
     for idx, (uuid, summary) in enumerate(summaries.items(), start=1):
-        compiled_output += f"\nGroup {idx} summary (UUID {uuid}):\n{summary}\n"
+        compiled_output += f"### Conversation {idx}\n"
+        compiled_output += f"_{summary}_\n\n"
     return compiled_output
 
 
