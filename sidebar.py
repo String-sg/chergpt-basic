@@ -21,7 +21,10 @@ from app.db.database_connection import (
     get_app_description,
     update_app_description,
     get_app_title,
-    update_app_title
+    update_app_title,
+    save_user_prompt,
+    get_user_prompts,
+    create_session
 )
 
 CUSTOM_INSTRUCTIONS_HEIGHT = 300
@@ -134,9 +137,45 @@ def handle_destructive_actions():
         st.success("Instructions table dropped")
         st.rerun()
 
+def setup_prompt_management():
+    """Handle custom prompt creation and sharing."""
+    with st.expander("📝 Custom Prompts"):
+        prompt_name = st.text_input("Prompt Name")
+        prompt_content = st.text_area("Prompt Content")
+        if st.button("Save Prompt"):
+            if prompt_name and prompt_content:
+                prompt_id = save_user_prompt(st.session_state.authenticated_email, prompt_name, prompt_content)
+                if prompt_id:
+                    session_id = create_session(st.session_state.authenticated_email, prompt_id)
+                    if session_id:
+                        share_url = f"{os.environ.get('BASE_URL', 'https://your-repl-url.repl.co')}?session={session_id}"
+                        st.success("Prompt saved! Share this link:")
+                        st.code(share_url)
+                    else:
+                        st.error("Failed to create sharing session")
+                else:
+                    st.error("Failed to save prompt")
+            else:
+                st.error("Please fill in both fields")
+        
+        st.divider()
+        st.subheader("Your Prompts")
+        prompts = get_user_prompts(st.session_state.authenticated_email)
+        for prompt_id, name, content in prompts:
+            with st.expander(name):
+                st.write(content)
+                if st.button("Create Share Link", key=f"share_{prompt_id}"):
+                    session_id = create_session(st.session_state.authenticated_email, prompt_id)
+                    if session_id:
+                        share_url = f"{os.environ.get('BASE_URL', 'https://your-repl-url.repl.co')}?session={session_id}"
+                        st.success("Share this link:")
+                        st.code(share_url)
+
 def setup_sidebar():
     """Main sidebar setup function."""
     with st.sidebar:
         st.title("Settings")
         setup_admin_authentication()
+        if st.session_state.authenticated_email:
+            setup_prompt_management()
         setup_admin_controls()
