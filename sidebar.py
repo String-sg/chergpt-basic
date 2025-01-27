@@ -21,7 +21,10 @@ from app.db.database_connection import (
     get_app_description,
     update_app_description,
     get_app_title,
-    update_app_title
+    update_app_title,
+    save_user_prompt,
+    get_user_prompts,
+    create_session
 )
 
 CUSTOM_INSTRUCTIONS_HEIGHT = 300
