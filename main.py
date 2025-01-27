@@ -26,7 +26,7 @@ def main():
         email = verify_token(token)
         if email:
             st.session_state.authenticated_email = email
-            st.query_params.clear()
+            del st.query_params['token']
             st.rerun()
 
     dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
