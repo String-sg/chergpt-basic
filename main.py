@@ -29,6 +29,8 @@ def main():
             st.query_params.clear()
             st.rerun()
 
+    dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
+    
     if not st.session_state.authenticated_email:
         st.title("CherGPT")
 
@@ -37,15 +39,21 @@ def main():
         with col1:
             st.subheader("Login")
             email = st.text_input("Enter your MOE email")
-            if st.button("Send Login Link"):
-                if email and is_valid_email_domain(email):
-                    magic_link = generate_magic_link(email)
-                    if send_magic_link(email, magic_link):
-                        st.success("Login link sent! Please check your email.")
+            
+            if dev_mode:
+                if st.button("Dev Login"):
+                    st.session_state.authenticated_email = email
+                    st.rerun()
+            else:
+                if st.button("Send Login Link"):
+                    if email and is_valid_email_domain(email):
+                        magic_link = generate_magic_link(email)
+                        if send_magic_link(email, magic_link):
+                            st.success("Login link sent! Please check your email.")
+                        else:
+                            st.error("Failed to send login link.")
                     else:
-                        st.error("Failed to send login link.")
-                else:
-                    st.error("Please use a valid MOE email address.")
+                        st.error("Please use a valid MOE email address.")
 
         with col2:
             st.subheader("Your chat assistant ")
