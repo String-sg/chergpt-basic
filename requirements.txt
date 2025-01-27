@@ -3,3 +3,5 @@ openai
 psycopg2-binary
 pytest
 streamlit-feedback
+python-jose
+sendgrid
