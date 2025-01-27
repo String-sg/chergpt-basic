@@ -71,11 +71,31 @@ def send_magic_link(email, magic_link):
         return False
 
 
+def log_auth_attempt(email, success, ip_address=None, user_agent=None):
+    conn = connect_to_db()
+    if conn is None:
+        return
+    try:
+        with conn, conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO auth_logs (email, success, ip_address, user_agent)
+                VALUES (%s, %s, %s, %s)
+            """, (email, success, ip_address, user_agent))
+    except Exception as e:
+        st.error(f"Error logging auth attempt: {str(e)}")
+    finally:
+        if conn:
+            conn.close()
+
 def verify_token(token):
     try:
         payload = jwt.decode(token,
                              os.environ.get('JWT_SECRET_KEY'),
                              algorithms=['HS256'])
-        return payload['email']
+        email = payload['email']
+        log_auth_attempt(email, True)
+        return email
     except:
+        if token:  # Only log failed attempts if token was provided
+            log_auth_attempt("unknown", False)
         return None

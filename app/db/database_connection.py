@@ -69,6 +69,18 @@ def initialize_db():
                 );
             """)
             
+            # Initialize auth_logs table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS auth_logs (
+                    id SERIAL PRIMARY KEY,
+                    email TEXT NOT NULL,
+                    timestamp TIMESTAMP DEFAULT current_timestamp,
+                    success BOOLEAN NOT NULL,
+                    ip_address TEXT,
+                    user_agent TEXT
+                );
+            """)
+            
             # Ensure there is always one row in app_title to update
             cur.execute("""
                 INSERT INTO app_title (id, description)
