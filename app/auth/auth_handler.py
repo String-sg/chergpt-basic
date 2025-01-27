@@ -1,7 +1,6 @@
 
 import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+import resend
 from jose import jwt
 import streamlit as st
 from datetime import datetime, timedelta
@@ -24,8 +23,8 @@ def generate_magic_link(email):
 
 def send_magic_link(email, magic_link):
     try:
-        api_key = os.environ.get('SENDGRID_API_KEY')
-        from_email = os.environ.get('SENDGRID_FROM_EMAIL')
+        api_key = os.environ.get('RESEND_API_KEY')
+        from_email = os.environ.get('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
         
         # Debug logging
         st.write(f"Sending to: {email}")
@@ -33,20 +32,16 @@ def send_magic_link(email, magic_link):
         st.write(f"Magic link: {magic_link}")
         
         if not api_key:
-            st.error("SendGrid API key not found in environment variables")
-            return False
-        if not from_email:
-            st.error("SendGrid from email not found in environment variables")
+            st.error("Resend API key not found in environment variables")
             return False
             
-        sg = SendGridAPIClient(api_key)
-        message = Mail(
-            from_email=from_email,
-            to_emails=email,
-            subject='Your Login Link',
-            html_content=f'Click <a href="{magic_link}">here</a> to login to CherGPT.'
-        )
-        response = sg.send(message)
+        resend.api_key = api_key
+        response = resend.Emails.send({
+            "from": from_email,
+            "to": email,
+            "subject": "Your Login Link",
+            "html": f'Click <a href="{magic_link}">here</a> to login to CherGPT.'
+        })
         
         # Detailed logging
         st.write("SendGrid Details:")
