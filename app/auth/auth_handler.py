@@ -54,26 +54,15 @@ def send_magic_link(email, magic_link):
         })
         
         # Detailed logging
-        st.write("SendGrid Details:")
+        st.write("Resend Details:")
         st.write(f"From Email: {from_email}")
         st.write(f"To Email: {email}")
-        st.write(f"Status Code: {response.status_code}")
-        st.write(f"Response Headers: {response.headers}")
-        st.write(f"Response Body: {response.body.decode() if response.body else 'No body'}")
         
-        # Log basic sending details with verification status
+        # Log basic sending details
         st.write("Email sending attempt completed.")
-        if response.status_code == 202:
-            st.warning("""
-            ⚠️ Email accepted by SendGrid but may not be delivered until:
-            1. Your SendGrid account is fully verified
-            2. Domain (string.sg) is authenticated
-            3. Sender email (info@string.sg) is verified
-            4. Account is out of sandbox mode
-            """)
-        return response.status_code == 202
+        return True
     except Exception as e:
-        st.error(f"SendGrid Error: {str(e)}")
+        st.error(f"Resend Error: {str(e)}")
         return False
 
 def verify_token(token):
