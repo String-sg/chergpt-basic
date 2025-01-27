@@ -46,7 +46,7 @@ def initialize_db():
                 );
             """)
 
-            # Initialize app_info table
+            # Initialize app_info and app_title tables
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS app_info (
                     id SERIAL PRIMARY KEY,
@@ -54,10 +54,23 @@ def initialize_db():
                 );
             """)
             
-            # Ensure there is always one row in app_info to update
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS app_title (
+                    id SERIAL PRIMARY KEY,
+                    description TEXT
+                );
+            """)
+            
+            # Ensure there is always one row in both tables
             cur.execute("""
                 INSERT INTO app_info (id, description)
                 VALUES (1, 'Chatbot to support teaching and learning.')
+                ON CONFLICT (id) DO NOTHING;
+            """)
+            
+            cur.execute("""
+                INSERT INTO app_title (id, description)
+                VALUES (1, 'CherGPT')
                 ON CONFLICT (id) DO NOTHING;
             """)
 
@@ -163,20 +176,28 @@ def get_app_title():
             conn.close()
 
 def update_app_title(new_title):
+    if not new_title:
+        logging.error("Title cannot be empty")
+        return False
+        
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
-        return
+        return False
 
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                UPDATE app_title SET description = %s WHERE id = 1;
+                UPDATE app_title SET description = %s WHERE id = 1
+                RETURNING id;
             """, (new_title,))
+            result = cur.fetchone()
             conn.commit()
-            logging.info("App description updated successfully.")
+            logging.info("App title updated successfully.")
+            return result is not None
     except Exception as e:
         logging.error(f"Error updating app title: {e}")
+        return False
     finally:
         if conn:
             conn.close()
