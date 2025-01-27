@@ -77,6 +77,37 @@ def main():
     initialize_db()
     initialize_chatlog_table()
     initialize_chat_state()
+    
+    # Initialize user_prompts and sessions tables
+    conn = connect_to_db()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                # Initialize user_prompts table
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS user_prompts (
+                        id SERIAL PRIMARY KEY,
+                        email TEXT NOT NULL,
+                        prompt_name TEXT NOT NULL,
+                        prompt_content TEXT NOT NULL,
+                        created_at TIMESTAMP DEFAULT current_timestamp
+                    );
+                """)
+                
+                # Initialize sessions table
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS sessions (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        email TEXT NOT NULL,
+                        prompt_id INTEGER REFERENCES user_prompts(id),
+                        created_at TIMESTAMP DEFAULT current_timestamp,
+                        expires_at TIMESTAMP,
+                        is_active BOOLEAN DEFAULT true
+                    );
+                """)
+            conn.commit()
+        finally:
+            conn.close()
 
     # Initialize chat client
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
