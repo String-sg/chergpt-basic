@@ -39,3 +39,23 @@ div[data-testid="stHeader"] {
     font-size: 2.5rem;
     margin: 0;
 }
+
+/* Primary color and hover effects */
+.stButton > button {
+    background-color: #75F8CC !important;
+    color: #33373B !important;
+}
+
+.stButton > button:hover {
+    background-color: #75F8CC !important;
+    border-color: #75F8CC !important;
+    color: #33373B !important;
+}
+
+/* Make sure image path is absolute */
+.title-logo {
+    content: url("/app/static/logo.png");
+    width: 40px;
+    height: 40px;
+    display: block;
+}

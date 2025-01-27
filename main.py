@@ -50,7 +50,7 @@ def main():
     if not st.session_state.authenticated_email:
         st.markdown("""
         <div class="title-container">
-            <img src="app/static/logo.png" class="title-logo" alt="CherGPT Logo"/>
+            <img src="/app/static/logo.png" class="title-logo" alt="CherGPT Logo"/>
             <h1 class="title-text">CherGPT</h1>
         </div>
         """, unsafe_allow_html=True)
