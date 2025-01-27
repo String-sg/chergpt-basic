@@ -30,7 +30,7 @@ def main():
             st.rerun()
 
     dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
-    
+
     if not st.session_state.authenticated_email:
         st.title("CherGPT")
 
@@ -39,7 +39,7 @@ def main():
         with col1:
             st.subheader("Login")
             email = st.text_input("Enter your MOE email")
-            
+
             if dev_mode:
                 if st.button("Dev Login"):
                     st.session_state.authenticated_email = email
@@ -49,7 +49,8 @@ def main():
                     if email and is_valid_email_domain(email):
                         magic_link = generate_magic_link(email)
                         if magic_link and send_magic_link(email, magic_link):
-                            st.success("Login link sent! Please check your email.")
+                            st.success(
+                                "Login link sent! Please check your email.")
                         else:
                             st.error("Failed to send login link.")
                     else:
@@ -59,7 +60,7 @@ def main():
             st.subheader("Your chat assistant ")
             st.write("for teaching and learning")
             st.write("✅ custom prompts and chatlog export")
-            st.write("❌ custom prompts and chatlog export")
+            st.write("❌ knowledge base, custom docs or RAG")
         return
 
     # Initialize app state
