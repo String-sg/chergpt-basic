@@ -80,7 +80,17 @@ def main():
 
     # Initialize chat client and settings
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-    existing_instructions = get_latest_instructions()
+    
+    # Check for shared session
+    session_id = st.query_params.get('session')
+    if session_id:
+        session_prompt = get_session_prompt(session_id)
+        if session_prompt:
+            existing_instructions = session_prompt
+        else:
+            existing_instructions = get_latest_instructions()
+    else:
+        existing_instructions = get_latest_instructions()
 
     # Display and handle chat
     display_chat_history()
