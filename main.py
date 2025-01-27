@@ -27,12 +27,12 @@ def main():
     if 'authenticated_email' not in st.session_state:
         st.session_state.authenticated_email = None
         
-    token = st.experimental_get_query_params().get('token', [None])[0]
+    token = st.query_params.get('token', None)
     if token:
         email = verify_token(token)
         if email:
             st.session_state.authenticated_email = email
-            st.experimental_set_query_params()
+            st.query_params.clear()
             st.rerun()
     
     if not st.session_state.authenticated_email:
