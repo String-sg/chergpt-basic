@@ -1,4 +1,3 @@
-
 """
 Main application file for CherGPT - A custom chat assistant.
 Handles initialization and core application flow.
@@ -7,26 +6,21 @@ import os
 import streamlit as st
 from openai import OpenAI
 from app.chatlog.chatlog_handler import initialize_chatlog_table
-from app.chat.chat_handler import (
-    initialize_chat_state,
-    display_chat_history,
-    handle_chat_interaction
-)
-from app.db.database_connection import (
-    get_app_description,
-    get_app_title,
-    initialize_db
-)
+from app.chat.chat_handler import (initialize_chat_state, display_chat_history,
+                                   handle_chat_interaction)
+from app.db.database_connection import (get_app_description, get_app_title,
+                                        initialize_db)
 from app.instructions.instructions_handler import get_latest_instructions
 from sidebar import setup_sidebar
 
 from app.auth.auth_handler import is_valid_email_domain, generate_magic_link, send_magic_link, verify_token
 
+
 def main():
     # Check authentication
     if 'authenticated_email' not in st.session_state:
         st.session_state.authenticated_email = None
-        
+
     token = st.query_params.get('token', None)
     if token:
         email = verify_token(token)
@@ -34,12 +28,12 @@ def main():
             st.session_state.authenticated_email = email
             st.query_params.clear()
             st.rerun()
-    
+
     if not st.session_state.authenticated_email:
-        st.title("Login")
-        
+        st.title("CherGPT")
+
         col1, col2 = st.columns([1, 1])
-        
+
         with col1:
             st.subheader("Login")
             email = st.text_input("Enter your MOE email")
@@ -52,16 +46,18 @@ def main():
                         st.error("Failed to send login link.")
                 else:
                     st.error("Please use a valid MOE email address.")
-                    
+
         with col2:
-            st.subheader("CherGPT")
-            st.write("Chat assistant for teaching and learning")
-            
+            st.subheader("Your chat assistant ")
+            st.write("for teaching and learning")
+            st.write("✅ custom prompts and chatlog export")
+            st.write("❌ custom prompts and chatlog export")
         return
 
     # Initialize app state
     app_title = get_app_title()
-    app_description = get_app_description() or "Chatbot to support teaching and learning"
+    app_description = get_app_description(
+    ) or "Chatbot to support teaching and learning"
     st.title(app_title)
 
     if "is_admin" not in st.session_state:
@@ -77,10 +73,11 @@ def main():
     # Initialize chat client and settings
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     existing_instructions = get_latest_instructions()
-    
+
     # Display and handle chat
     display_chat_history()
     handle_chat_interaction(client, existing_instructions)
+
 
 if __name__ == "__main__":
     main()
