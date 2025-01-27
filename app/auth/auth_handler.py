@@ -33,7 +33,7 @@ def generate_magic_link(email):
                            jwt_secret,
                            algorithm='HS256')
         base_url = os.environ.get('BASE_URL', 'https://your-repl-url.repl.co')
-        return f"{base_url}/verify?token={token}"
+        return f"{base_url}?verify={token}"
     except Exception as e:
         st.error(f"Error generating magic link: {str(e)}")
         return None

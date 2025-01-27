@@ -21,12 +21,16 @@ def main():
     if 'authenticated_email' not in st.session_state:
         st.session_state.authenticated_email = None
 
+    # Handle both /verify and direct token parameter
     token = st.query_params.get('token', None)
+    if not token and 'verify' in st.query_params:
+        token = st.query_params.get('verify', None)
+        
     if token:
         email = verify_token(token)
         if email:
             st.session_state.authenticated_email = email
-            del st.query_params['token']
+            st.query_params.clear()
             st.rerun()
 
     dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
