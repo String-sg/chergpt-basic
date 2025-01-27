@@ -24,17 +24,28 @@ def generate_magic_link(email):
 
 def send_magic_link(email, magic_link):
     try:
-        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        api_key = os.environ.get('SENDGRID_API_KEY')
+        from_email = os.environ.get('SENDGRID_FROM_EMAIL')
+        
+        if not api_key:
+            st.error("SendGrid API key not found in environment variables")
+            return False
+        if not from_email:
+            st.error("SendGrid from email not found in environment variables")
+            return False
+            
+        sg = SendGridAPIClient(api_key)
         message = Mail(
-            from_email=os.environ.get('SENDGRID_FROM_EMAIL'),
+            from_email=from_email,
             to_emails=email,
             subject='Your Login Link',
             html_content=f'Click <a href="{magic_link}">here</a> to login to CherGPT.'
         )
-        sg.send(message)
-        return True
+        response = sg.send(message)
+        st.write(f"SendGrid Response Status Code: {response.status_code}")
+        return response.status_code == 202
     except Exception as e:
-        st.error(f"Error sending email: {str(e)}")
+        st.error(f"SendGrid Error: {str(e)}")
         return False
 
 def verify_token(token):
