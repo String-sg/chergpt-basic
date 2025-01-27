@@ -11,37 +11,27 @@ div.stApp {
     padding-top: 2rem;
 }
 
-/* Font styles */
+/* Global font styles */
+* {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Specific font styles */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif !important;
     color: white !important;
 }
 
-div, p, span, button, input {
+/* Streamlit specific elements */
+.stTextInput, .stButton, .stSelectbox, .stTextArea, 
+.stMarkdown, .element-container, pre {
     font-family: 'Montserrat', sans-serif !important;
     color: white !important;
 }
 
-/* Header and logo styles */
-div[data-testid="stHeader"] {
-    background-color: transparent;
-}
-
-.title-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.title-logo {
-    width: 40px;
-    height: 40px;
-}
-
-.title-text {
-    font-size: 2.5rem;
-    margin: 0;
+/* Chat message styles */
+.stChatMessage {
+    font-family: 'Montserrat', sans-serif !important;
 }
 
 /* Button styles */
@@ -56,4 +46,9 @@ div[data-testid="stHeader"] {
     background-color: #75F8CC !important;
     border-color: #75F8CC !important;
     color: #33373B !important;
+}
+
+/* Sidebar styles */
+.css-1d391kg, .css-1lcbmhc {
+    font-family: 'Montserrat', sans-serif !important;
 }
