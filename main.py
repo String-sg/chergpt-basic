@@ -48,7 +48,7 @@ def main():
                 if st.button("Send Login Link"):
                     if email and is_valid_email_domain(email):
                         magic_link = generate_magic_link(email)
-                        if send_magic_link(email, magic_link):
+                        if magic_link and send_magic_link(email, magic_link):
                             st.success("Login link sent! Please check your email.")
                         else:
                             st.error("Failed to send login link.")

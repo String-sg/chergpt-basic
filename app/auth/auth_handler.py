@@ -19,15 +19,24 @@ def is_valid_email_domain(email):
 
 
 def generate_magic_link(email):
+    jwt_secret = os.environ.get('JWT_SECRET_KEY')
+    if not jwt_secret:
+        st.error("JWT_SECRET_KEY not found in environment variables")
+        return None
+        
     expiration = datetime.utcnow() + timedelta(minutes=5)
-    token = jwt.encode({
-        'email': email,
-        'exp': expiration
-    },
-                       os.environ.get('JWT_SECRET_KEY'),
-                       algorithm='HS256')
-    base_url = os.environ.get('BASE_URL', 'https://your-repl-url.repl.co')
-    return f"{base_url}/verify?token={token}"
+    try:
+        token = jwt.encode({
+            'email': email,
+            'exp': expiration
+        },
+        jwt_secret,
+        algorithm='HS256')
+        base_url = os.environ.get('BASE_URL', 'https://your-repl-url.repl.co')
+        return f"{base_url}/verify?token={token}"
+    except Exception as e:
+        st.error(f"Error generating magic link: {str(e)}")
+        return None
 
 
 def send_magic_link(email, magic_link):
