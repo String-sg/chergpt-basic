@@ -75,6 +75,28 @@ def initialize_db():
                 ON CONFLICT (id) DO NOTHING;
             """)
 
+            # Initialize user_prompts table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS user_prompts (
+                    id SERIAL PRIMARY KEY,
+                    email TEXT NOT NULL,
+                    prompt_name TEXT NOT NULL,
+                    prompt_content TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT current_timestamp
+                );
+            """)
+
+            # Initialize sessions table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS sessions (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email TEXT NOT NULL,
+                    prompt_id INTEGER REFERENCES user_prompts(id),
+                    created_at TIMESTAMP DEFAULT current_timestamp,
+                    expires_at TIMESTAMP,
+                    is_active BOOLEAN DEFAULT true
+                );
+            """)
 
         conn.commit()
     except Exception as e:
@@ -162,6 +184,71 @@ def update_app_description(new_description):
             logging.info("App description updated successfully.")
     except Exception as e:
         logging.error(f"Error updating app description: {e}")
+    finally:
+        if conn:
+            conn.close()
+def save_user_prompt(email, prompt_name, prompt_content):
+    conn = connect_to_db()
+    if conn is None:
+        return None
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO user_prompts (email, prompt_name, prompt_content)
+                VALUES (%s, %s, %s)
+                RETURNING id;
+            """, (email, prompt_name, prompt_content))
+            prompt_id = cur.fetchone()[0]
+            conn.commit()
+            return prompt_id
+    finally:
+        if conn:
+            conn.close()
+
+def get_user_prompts(email):
+    conn = connect_to_db()
+    if conn is None:
+        return []
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, prompt_name, prompt_content FROM user_prompts WHERE email = %s", (email,))
+            return cur.fetchall()
+    finally:
+        if conn:
+            conn.close()
+
+def create_session(email, prompt_id):
+    conn = connect_to_db()
+    if conn is None:
+        return None
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO sessions (email, prompt_id, expires_at)
+                VALUES (%s, %s, current_timestamp + interval '24 hours')
+                RETURNING id;
+            """, (email, prompt_id))
+            session_id = cur.fetchone()[0]
+            conn.commit()
+            return session_id
+    finally:
+        if conn:
+            conn.close()
+
+def get_session_prompt(session_id):
+    conn = connect_to_db()
+    if conn is None:
+        return None
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT up.prompt_content 
+                FROM sessions s 
+                JOIN user_prompts up ON s.prompt_id = up.id 
+                WHERE s.id = %s AND s.is_active = true AND s.expires_at > current_timestamp;
+            """, (session_id,))
+            result = cur.fetchone()
+            return result[0] if result else None
     finally:
         if conn:
             conn.close()
