@@ -21,6 +21,12 @@ def main():
     if 'authenticated_email' not in st.session_state:
         st.session_state.authenticated_email = None
 
+    # Check for shared session first
+    session_id = st.query_params.get('session')
+    if session_id:
+        st.session_state.current_session = session_id
+        
+    # Then check authentication
     token = st.query_params.get('token', None)
     if token:
         email = verify_token(token)
@@ -31,7 +37,8 @@ def main():
 
     dev_mode = os.environ.get('DEVELOPMENT_MODE', 'false').lower() == 'true'
     
-    if not st.session_state.authenticated_email:
+    # Only require login if no session is present
+    if not st.session_state.authenticated_email and not session_id:
         st.title("CherGPT")
 
         col1, col2 = st.columns([1, 1])

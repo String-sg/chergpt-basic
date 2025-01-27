@@ -245,7 +245,7 @@ def get_session_prompt(session_id):
                 SELECT up.prompt_content 
                 FROM sessions s 
                 JOIN user_prompts up ON s.prompt_id = up.id 
-                WHERE s.id = %s AND s.is_active = true AND s.expires_at > current_timestamp;
+                WHERE s.id::text = %s AND s.is_active = true AND s.expires_at > current_timestamp;
             """, (session_id,))
             result = cur.fetchone()
             return result[0] if result else None
