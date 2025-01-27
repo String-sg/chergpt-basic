@@ -2,6 +2,7 @@ import os
 from jose import jwt
 import streamlit as st
 from datetime import datetime, timedelta
+from app.db.database_connection import connect_to_db
 
 # Try importing resend, fallback to basic error if not available
 try:
