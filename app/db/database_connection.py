@@ -207,17 +207,21 @@ def update_app_description(new_description):
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
-        return
+        return False
 
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                UPDATE app_info SET description = %s WHERE id = 1;
+                UPDATE app_info SET description = %s WHERE id = 1
+                RETURNING id;
             """, (new_description,))
+            result = cur.fetchone()
             conn.commit()
             logging.info("App description updated successfully.")
+            return result is not None
     except Exception as e:
         logging.error(f"Error updating app description: {e}")
+        return False
     finally:
         if conn:
             conn.close()
