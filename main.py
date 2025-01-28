@@ -89,9 +89,10 @@ def main():
                        placeholder="@moe, @school or @string.sg")
             if dev_mode:
                 if st.button("Dev Login", key="dev_login", use_container_width=True):
-                    email = email_input.value
-                    if email and email.strip():
+                    email = email_input.get('value', '')
+                    if email and isinstance(email, str) and email.strip():
                         st.session_state.authenticated_email = email.strip()
+                        st.session_state.email_input = email.strip()
                         st.rerun()
                     else:
                         st.error("Please enter an email address")
