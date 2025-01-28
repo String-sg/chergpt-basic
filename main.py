@@ -76,15 +76,13 @@ def main():
         """,
                     unsafe_allow_html=True)
 
-        st.title("CherGPT")
+        import streamlit_shadcn_ui as ui
 
-        st.write("Your chat assistant for teaching and learning")
-        st.write("✅ custom prompts and chatlog export")
-        st.write("❌ knowledge base, custom docs or RAG")
-
-        st.markdown("---")
-
-        email = st.text_input("Login with @moe, @school or @string email")
+        with ui.card(title="CherGPT", subtitle="Your chat assistant for teaching and learning"):
+            st.write("✅ custom prompts and chatlog export")
+            st.write("❌ knowledge base, custom docs or RAG")
+            
+            email = st.text_input("Login with @moe, @school or @string email")
 
         if dev_mode:
             if st.button("Dev Login"):
