@@ -1,0 +1,128 @@
+import streamlit as st
+from streamlit_custom_notification_box import custom_notification_box
+import streamlit_shadcn_ui as ui
+
+# Configure the page
+st.set_page_config(
+    page_title="CherGPT Login",
+    page_icon="🤖",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+
+# Custom CSS for improved styling
+st.markdown("""
+    <style>
+    /* Main container styling */
+    .stApp {
+        background-color: #1E1E1E;
+        color: white;
+    }
+    
+    /* Header styling */
+    .main-header {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    /* Subtitle styling */
+    .subtitle {
+        font-size: 1.2rem;
+        color: #A0AEC0;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    /* Feature list styling */
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin: 0.5rem 0;
+        font-size: 1.1rem;
+    }
+    
+    /* Input field styling */
+    .stTextInput > div > div {
+        background-color: #2D3748;
+        color: white;
+        border: 1px solid #4A5568;
+        border-radius: 8px;
+    }
+    
+    /* Button styling */
+    .stButton > button {
+        width: 100%;
+        background-color: #3182CE;
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+    
+    .stButton > button:hover {
+        background-color: #2C5282;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Main content
+st.markdown('<h1 class="main-header">CherGPT</h1>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Your chat assistant for teaching and learning</p>', unsafe_allow_html=True)
+
+# Features section with custom styling
+st.markdown("""
+    <div class="feature-item">
+        <span style="color: #48BB78; margin-right: 10px;">✓</span>
+        custom prompts and chatlog export
+    </div>
+    <div class="feature-item">
+        <span style="color: #F56565; margin-right: 10px;">✗</span>
+        knowledge base, custom docs or RAG
+    </div>
+""", unsafe_allow_html=True)
+
+# Add some spacing
+st.markdown("<br>", unsafe_allow_html=True)
+
+# Login form
+email = st.text_input("Login with @moe, @school or @string email", key="email")
+
+if st.button("Send Login Link"):
+    if email:
+        # Show success notification
+        custom_notification_box(
+            icon='✉️',
+            textDisplay='Login link sent! Please check your email.',
+            externalLink='',
+            styles={
+                'padding': '1rem',
+                'background-color': '#2D3748',
+                'border-radius': '8px',
+                'border': '1px solid #4A5568'
+            }
+        )
+    else:
+        # Show error notification
+        custom_notification_box(
+            icon='⚠️',
+            textDisplay='Please enter your email address.',
+            externalLink='',
+            styles={
+                'padding': '1rem',
+                'background-color': '#2D3748',
+                'border-radius': '8px',
+                'border': '1px solid #4A5568'
+            }
+        )
+
+# Footer
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("""
+    <div style="position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; color: #A0AEC0;">
+        Powered by CherGPT
+    </div>
+""", unsafe_allow_html=True)
