@@ -87,10 +87,14 @@ def main():
             ui.element("input",
                        key="email_input",
                        placeholder="@moe, @school or @string.sg")
+            email = st.session_state.get('email_input', '')
             if dev_mode:
-                ui.element("button", text="Dev Login")
-                st.session_state.authenticated_email = email
-                st.rerun()
+                if ui.element("button", text="Dev Login"):
+                    if email:
+                        st.session_state.authenticated_email = email
+                        st.rerun()
+                    else:
+                        st.error("Please enter an email address")
             else:
                 if st.button("Send Login Link"):
                     if email and is_valid_email_domain(email):
