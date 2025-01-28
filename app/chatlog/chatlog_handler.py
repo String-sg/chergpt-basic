@@ -38,22 +38,11 @@ def initialize_chatlog_table():
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
-
     try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS chat_logs (
-                    id SERIAL PRIMARY KEY,
-                    timestamp TIMESTAMP DEFAULT current_timestamp,
-                    prompt TEXT,
-                    response TEXT,
-                    conversation_id UUID
-                );
-            """)
-            conn.commit()
-            logging.info("Chatlog table (re)created successfully.")
+        # Table is now created in initialize_db()
+        logging.info("Chatlog table initialization handled by database_connection.py")
     except Exception as e:
-        logging.error(f"Error (re)creating chatlog table: {e}")
+        logging.error(f"Error with chatlog table: {e}")
     finally:
         if conn:
             conn.close()

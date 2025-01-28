@@ -75,6 +75,17 @@ def initialize_db():
                 ON CONFLICT (id) DO NOTHING;
             """)
 
+            # Initialize chat_logs table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS chat_logs (
+                    id SERIAL PRIMARY KEY,
+                    timestamp TIMESTAMP DEFAULT current_timestamp,
+                    prompt TEXT,
+                    response TEXT,
+                    conversation_id UUID
+                );
+            """)
+
             # Initialize app_title table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS app_title (
