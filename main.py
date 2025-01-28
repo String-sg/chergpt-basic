@@ -93,8 +93,6 @@ def main():
                     if email:
                         st.session_state.authenticated_email = email
                         st.rerun()
-                    else:
-                        st.error("Please enter an email address")
             else:
                 if st.button("Send Login Link"):
                     if email and is_valid_email_domain(email):
