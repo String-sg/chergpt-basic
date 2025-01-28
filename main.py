@@ -55,35 +55,21 @@ def main():
         return
 
     if not st.session_state.authenticated_email:
+        st.markdown('<h1 class="main-header">CherGPT</h1>', unsafe_allow_html=True)
+        st.markdown('<p class="subtitle">Your chat assistant for teaching and learning</p>', unsafe_allow_html=True)
+
         st.markdown("""
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Montserrat:wght@400;600&display=swap');
-        
-        * {
-            font-family: 'Montserrat', sans-serif !important;
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Space Grotesk', sans-serif !important;
-            color: white !important;
-        }
+            <div class="feature-item">
+                <span style="color: #75F8CC; margin-right: 10px;">✓</span>
+                custom prompts and chatlog export
+            </div>
+            <div class="feature-item">
+                <span style="color: #F56565; margin-right: 10px;">✗</span>
+                knowledge base, custom docs or RAG
+            </div>
+        """, unsafe_allow_html=True)
 
-        div, p, span, input, button, textarea, .element-container {
-            font-family: 'Montserrat', sans-serif !important;
-            color: white !important;
-        }
-        </style>
-        """,
-                    unsafe_allow_html=True)
-
-        st.title("CherGPT")
-
-        st.write("Your chat assistant for teaching and learning")
-        st.write("✅ custom prompts and chatlog export")
-        st.write("❌ knowledge base, custom docs or RAG")
-
-        st.markdown("---")
-
+        st.markdown("<br>", unsafe_allow_html=True)
         email = st.text_input("Login with @moe, @school or @string email")
 
         if dev_mode:

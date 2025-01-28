@@ -11,6 +11,39 @@ div.stApp {
     padding-top: 2rem;
 }
 
+/* Login screen styles */
+.main-header {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-family: 'Space Grotesk', sans-serif !important;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #A0AEC0;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Input field styling */
+.stTextInput > div > div {
+    background-color: #2D3748;
+    color: white !important;
+    border: 1px solid #4A5568;
+    border-radius: 8px;
+}
+
 /* Global font styles */
 * {
     font-family: 'Montserrat', sans-serif !important;
