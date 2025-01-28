@@ -6,3 +6,4 @@ streamlit-feedback
 python-jose
 sendgrid
 resend
+streamlit-shadcn-ui
