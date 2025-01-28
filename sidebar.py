@@ -85,8 +85,11 @@ def handle_title_edit():
     app_title = get_app_title()
     editable_title = st.text_area("This amends title", value=app_title, key="app_title")
     if st.button("Update title", key="save_app_title"):
-        update_app_title(editable_title)
-        st.success("App title updated successfully")
+        if update_app_title(editable_title):
+            st.success("App title updated successfully")
+            st.rerun()
+        else:
+            st.error("Failed to update title")
 
 def handle_description_edit():
     """Handle app description editing."""
@@ -97,8 +100,11 @@ def handle_description_edit():
         key="app_description"
     )
     if st.button("Update description", key="save_app_description"):
-        update_app_description(editable_description)
-        st.success("App description updated successfully")
+        if update_app_description(editable_description):
+            st.success("App description updated successfully")
+            st.rerun()
+        else:
+            st.error("Failed to update description")
 
 def handle_instructions_edit():
     """Handle custom instructions editing."""
