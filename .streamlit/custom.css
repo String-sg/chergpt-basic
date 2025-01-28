@@ -4,7 +4,7 @@
 
 /* Base styles */
 div.stApp {
-    background-color: #1A1A1A;
+    background-color: #000000;
 }
 
 .main .block-container {
@@ -12,71 +12,66 @@ div.stApp {
     max-width: 800px;
 }
 
-/* Login screen styles */
-.main-header {
+/* Title styling */
+h1 {
     font-family: 'Space Grotesk', sans-serif !important;
-    font-size: 4rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-align: center;
+    font-size: 3.5rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
     color: white !important;
 }
 
-.subtitle {
+p, div {
     font-family: 'Montserrat', sans-serif !important;
-    font-size: 1.1rem;
-    color: #888888;
-    text-align: center;
-    margin-bottom: 2rem;
+    color: #B0B0B0;
 }
 
+/* Feature list styling */
 .feature-item {
     display: flex;
     align-items: center;
     margin: 0.75rem 0;
-    font-size: 1rem;
     font-family: 'Montserrat', sans-serif !important;
-    color: #CCCCCC;
+    font-size: 1rem;
+    color: #B0B0B0;
 }
 
 /* Input field styling */
+div[data-baseweb="input"] {
+    background-color: #1E2023 !important;
+    border: 1px solid #2D3236 !important;
+    border-radius: 8px !important;
+}
+
 .stTextInput > div > div {
-    background-color: #2D3236;
-    color: white !important;
-    border: 1px solid #3D4145;
+    background-color: #1E2023;
+    border: 1px solid #2D3236;
     border-radius: 8px;
     padding: 0.75rem;
-    font-family: 'Montserrat', sans-serif !important;
 }
 
 .stTextInput input {
     color: white !important;
+    font-family: 'Montserrat', sans-serif !important;
     font-size: 0.95rem;
 }
 
-/* Button styles */
+/* Button styling */
 .stButton > button {
-    background-color: #75F8CC !important;
-    color: #1A1A1A !important;
+    background-color: #2D9CDB !important;
+    color: white !important;
     font-family: 'Montserrat', sans-serif !important;
     border: none !important;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    width: 100%;
-    margin-top: 0.5rem;
-    transition: opacity 0.2s;
+    border-radius: 8px !important;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    width: 100% !important;
+    margin-top: 0.5rem !important;
 }
 
 .stButton > button:hover {
-    opacity: 0.9;
-}
-
-/* Footer styling */
-footer {
-    color: #666666 !important;
-    font-family: 'Montserrat', sans-serif !important;
-    font-size: 0.9rem;
+    background-color: #2387C2 !important;
 }
 
 /* Hide Streamlit branding */
@@ -84,11 +79,10 @@ footer {
     visibility: hidden;
 }
 
-/* Sidebar styles */
-.css-1d391kg {
-    background-color: #1A1A1A;
-}
-
-.css-1d391kg .stMarkdown {
-    color: white !important;
+/* Powered by text */
+footer:last-child {
+    visibility: visible;
+    color: #666666 !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 0.9rem;
 }
