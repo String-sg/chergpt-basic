@@ -76,26 +76,20 @@ def main():
         """,
                     unsafe_allow_html=True)
 
-        import streamlit_shadcn_ui as ui
         st.title("CherGPT")
         st.caption("Your chat assistant for teaching and learning")
 
-        with ui.card(key="card1"):
-            ui.element("span",
-                       children=["Email"],
-                       className="text-gray-400 text-sm font-m")
-            email_input = ui.element("input",
-                                     key="email_input",
-                                     placeholder="@moe, @school or @string.sg")
-    if dev_mode:
-        if st.button("Dev Login", key="dev_login", use_container_width=True):
-            email = email_input.value
-            if email and isinstance(email, str) and email.strip():
-                st.session_state.authenticated_email = email.strip()
-                st.session_state.email_input = email.strip()
-                st.rerun()
-            else:
-                st.error("Please enter an email address")
+        with st.container():
+            st.text("Email")
+            email = st.text_input("", placeholder="@moe, @school or @string.sg", key="email_input", label_visibility="collapsed")
+            
+            if dev_mode:
+                if st.button("Dev Login", key="dev_login", use_container_width=True):
+                    if email and email.strip():
+                        st.session_state.authenticated_email = email.strip()
+                        st.rerun()
+                    else:
+                        st.error("Please enter an email address")
     else:
         if st.button("Send Magic Link",
                      key="send_link",
