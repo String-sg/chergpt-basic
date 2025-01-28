@@ -90,8 +90,9 @@ def main():
                         st.rerun()
                     else:
                         st.error("Please enter an email address")
-    else:
-        if st.button("Send Magic Link",
+                return  # Exit early in dev mode
+            
+            if st.button("Send Magic Link",
                      key="send_link",
                      help="Send login link to the provided email address",
                      use_container_width=True):
