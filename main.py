@@ -96,15 +96,15 @@ def main():
                      key="send_link",
                      help="Send login link to the provided email address",
                      use_container_width=True):
-            if email and is_valid_email_domain(email):
-                magic_link = generate_magic_link(email)
-                if magic_link and send_magic_link(email, magic_link):
-                    st.success("Login link sent! Please check your email.")
+                if email and is_valid_email_domain(email):
+                    magic_link = generate_magic_link(email)
+                    if magic_link and send_magic_link(email, magic_link):
+                        st.success("Login link sent! Please check your email.")
+                    else:
+                        st.error("Failed to send login link.")
                 else:
-                    st.error("Failed to send login link.")
-            else:
-                st.error("Please use a valid MOE email address.")
-    return
+                    st.error("Please use a valid MOE email address.")
+        return
 
     # Initialize app state
     app_title = get_app_title()
