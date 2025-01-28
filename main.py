@@ -58,11 +58,11 @@ def main():
         st.markdown("""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Montserrat:wght@400;600&display=swap');
-        
+
         * {
             font-family: 'Montserrat', sans-serif !important;
         }
-        
+
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Space Grotesk', sans-serif !important;
             color: white !important;
@@ -76,12 +76,13 @@ def main():
         """,
                     unsafe_allow_html=True)
 
-        import streamlit_shadcn_ui as ui
+        st.title("CherGPT")
+        st.caption("Your chat assistant for teaching and learning")
 
-        with ui.card(title="CherGPT", subtitle="Your chat assistant for teaching and learning"):
+        with st.container():
             st.write("✅ custom prompts and chatlog export")
             st.write("❌ knowledge base, custom docs or RAG")
-            
+
             email = st.text_input("Login with @moe, @school or @string email")
 
         if dev_mode:
