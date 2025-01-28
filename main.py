@@ -96,7 +96,7 @@ def main():
                     else:
                         st.error("Please enter an email address")
             else:
-                if st.button("Send Login Link"):
+                if ui.button("Send Login Link"):
                     if email and is_valid_email_domain(email):
                         magic_link = generate_magic_link(email)
                         if magic_link and send_magic_link(email, magic_link):
