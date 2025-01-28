@@ -76,14 +76,15 @@ def main():
         """,
                     unsafe_allow_html=True)
 
+        from streamlit_ui_extras import ui_card
+
         st.title("CherGPT")
         st.caption("Your chat assistant for teaching and learning")
 
-        with st.container():
-            st.write("✅ custom prompts and chatlog export")
-            st.write("❌ knowledge base, custom docs or RAG")
-
-            email = st.text_input("Login with @moe, @school or @string email")
+        with ui_card(key="card1", padding=3):
+            st.markdown('<span class="text-gray-400 text-sm">Email</span>', unsafe_allow_html=True)
+            email = st.text_input("", placeholder="Login with @moe, @school or @string email", key="email_input")
+            st.button("Send magic link", key="button", type="primary", use_container_width=True)
 
         if dev_mode:
             if st.button("Dev Login"):
