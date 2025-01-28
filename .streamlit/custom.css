@@ -4,85 +4,51 @@
 
 /* Base styles */
 div.stApp {
-    background-color: #000000;
+    background-color: #33373B;
 }
 
 .main .block-container {
     padding-top: 2rem;
-    max-width: 800px;
 }
 
-/* Title styling */
-h1 {
+/* Global font styles */
+* {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Specific font styles */
+h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif !important;
-    font-size: 3.5rem !important;
-    font-weight: 700 !important;
-    margin-bottom: 1rem !important;
     color: white !important;
 }
 
-p, div {
+/* Streamlit specific elements */
+.stTextInput, .stButton, .stSelectbox, .stTextArea, 
+.stMarkdown, .element-container, pre {
     font-family: 'Montserrat', sans-serif !important;
-    color: #B0B0B0;
-}
-
-/* Feature list styling */
-.feature-item {
-    display: flex;
-    align-items: center;
-    margin: 0.75rem 0;
-    font-family: 'Montserrat', sans-serif !important;
-    font-size: 1rem;
-    color: #B0B0B0;
-}
-
-/* Input field styling */
-div[data-baseweb="input"] {
-    background-color: #1E2023 !important;
-    border: 1px solid #2D3236 !important;
-    border-radius: 8px !important;
-}
-
-.stTextInput > div > div {
-    background-color: #1E2023;
-    border: 1px solid #2D3236;
-    border-radius: 8px;
-    padding: 0.75rem;
-}
-
-.stTextInput input {
     color: white !important;
-    font-family: 'Montserrat', sans-serif !important;
-    font-size: 0.95rem;
 }
 
-/* Button styling */
+/* Chat message styles */
+.stChatMessage {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Button styles */
 .stButton > button {
-    background-color: #2D9CDB !important;
-    color: white !important;
+    background-color: #75F8CC !important;
+    color: #33373B !important;
     font-family: 'Montserrat', sans-serif !important;
     border: none !important;
-    border-radius: 8px !important;
-    padding: 0.75rem 1.5rem !important;
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
-    width: 100% !important;
-    margin-top: 0.5rem !important;
 }
 
 .stButton > button:hover {
-    background-color: #2387C2 !important;
+    background-color: #75F8CC !important;
+    border-color: #75F8CC !important;
+    color: #33373B !important;
 }
 
-/* Hide Streamlit branding */
-#MainMenu, footer {
-    visibility: hidden;
-}
-
-/* Powered by text */
-footer:last-child {
-    visibility: visible;
-    color: #666666 !important;
+/* Sidebar styles */
+.css-1d391kg, .css-1lcbmhc {
     font-family: 'Montserrat', sans-serif !important;
-    font-size: 0.9rem;
 }

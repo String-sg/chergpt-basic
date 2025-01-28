@@ -176,7 +176,7 @@ def get_app_title():
             conn.close()
 
 def update_app_title(new_title):
-    if not new_title or new_title.strip() == '':
+    if not new_title:
         logging.error("Title cannot be empty")
         return False
         
@@ -190,18 +190,13 @@ def update_app_title(new_title):
             cur.execute("""
                 UPDATE app_title SET description = %s WHERE id = 1
                 RETURNING id;
-            """, (new_title.strip(),))
+            """, (new_title,))
             result = cur.fetchone()
-            if not result:
-                logging.error("No rows were affected by the update")
-                return False
             conn.commit()
             logging.info("App title updated successfully.")
-            return True
+            return result is not None
     except Exception as e:
         logging.error(f"Error updating app title: {e}")
-        if hasattr(e, 'pgerror'):
-            logging.error(f"PostgreSQL error: {e.pgerror}")
         return False
     finally:
         if conn:
@@ -212,21 +207,17 @@ def update_app_description(new_description):
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
-        return False
+        return
 
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                UPDATE app_info SET description = %s WHERE id = 1
-                RETURNING id;
+                UPDATE app_info SET description = %s WHERE id = 1;
             """, (new_description,))
-            result = cur.fetchone()
             conn.commit()
             logging.info("App description updated successfully.")
-            return result is not None
     except Exception as e:
         logging.error(f"Error updating app description: {e}")
-        return False
     finally:
         if conn:
             conn.close()
