@@ -85,14 +85,15 @@ def main():
             ui.element("span",
                        children=["Email"],
                        className="text-gray-400 text-sm font-m")
-            ui.element("input",
+            email = ui.element("input",
                        key="email_input",
                        placeholder="Login with @moe, @school or @string email")
 
         if dev_mode:
             if ui.element("button", text="Dev Login"):
-                st.session_state.authenticated_email = email
-                st.rerun()
+                if email:
+                    st.session_state.authenticated_email = email
+                    st.rerun()
         else:
             if ui.element("button", text="Send Magic Link"):
                 if email and is_valid_email_domain(email):
