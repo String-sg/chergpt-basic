@@ -84,13 +84,14 @@ def main():
             ui.element("span",
                        children=["Email"],
                        className="text-gray-400 text-sm font-m")
-            email = ui.element("input",
+            email_input = ui.element("input",
                        key="email_input",
-                       placeholder="@moe, @school or @string.sg").value or ''
+                       placeholder="@moe, @school or @string.sg")
             if dev_mode:
                 if st.button("Dev Login", key="dev_login", use_container_width=True):
-                    if email:
-                        st.session_state.authenticated_email = email
+                    email = email_input.value
+                    if email and email.strip():
+                        st.session_state.authenticated_email = email.strip()
                         st.rerun()
                     else:
                         st.error("Please enter an email address")
