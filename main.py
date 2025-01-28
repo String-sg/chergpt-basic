@@ -94,7 +94,7 @@ def main():
                 st.session_state.authenticated_email = email
                 st.rerun()
         else:
-            if ui.element("button", text="Send Magic Link")):
+            if ui.element("button", text="Send Magic Link"):
                 if email and is_valid_email_domain(email):
                     magic_link = generate_magic_link(email)
                     if magic_link and send_magic_link(email, magic_link):
