@@ -84,10 +84,9 @@ def main():
             ui.element("span",
                        children=["Email"],
                        className="text-gray-400 text-sm font-m")
-            ui.element("input",
+            email = ui.element("input",
                        key="email_input",
-                       placeholder="@moe, @school or @string.sg")
-            email = st.session_state.get('email_input', '')
+                       placeholder="@moe, @school or @string.sg").value or ''
             if dev_mode:
                 if st.button("Dev Login", key="dev_login", use_container_width=True):
                     if email:
