@@ -89,25 +89,24 @@ def main():
                        placeholder="@moe, @school or @string.sg")
             email = st.session_state.get('email_input', '')
             if dev_mode:
-                if ui.button("Dev Login"):
+                if st.button("Dev Login"):
                     if email:
                         st.session_state.authenticated_email = email
                         st.rerun()
                     else:
                         st.error("Please enter an email address")
             else:
-                if ui.button("Send Login Link"):
-                    if email and is_valid_email_domain(email):
-                        magic_link = generate_magic_link(email)
-                        if magic_link and send_magic_link(email, magic_link):
-                            st.success(
-                                "Login link sent! Please check your email.")
-                        else:
-                            st.error("Failed to send login link.")
+                if email and is_valid_email_domain(email):
+                    magic_link = generate_magic_link(email)
+                    if magic_link and send_magic_link(email, magic_link):
+                        st.success(
+                            "Login link sent! Please check your email.")
                     else:
-                        st.error("Please use a valid MOE email address.")
+                        st.error("Failed to send login link.")
+                else:
+                    st.error("Please use a valid MOE email address.")
+            st.button("Send Magic Link", key="send_link", help="Send login link to the provided email address", use_container_width=True)
             return
-
     # Initialize app state
     app_title = get_app_title()
     app_description = get_app_description(
