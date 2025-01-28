@@ -1,4 +1,5 @@
 # for database connection and initialization
+import os
 import psycopg2
 import logging
 import streamlit as st
