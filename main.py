@@ -82,26 +82,26 @@ def main():
 
         with ui.card(key="card1"):
             ui.element("span",
-                      children=["Email"],
-                      className="text-gray-400 text-sm font-m")
+                       children=["Email"],
+                       className="text-gray-400 text-sm font-m")
             ui.element("input",
-                      key="email_input",
-                      placeholder="@moe, @school or @string.sg")
-            
-            with ui.card(key="login_card"):
-                if dev_mode:
-                    ui.element("button", 
-                              key="dev_login_btn", 
-                              text="Dev Login",
-                              onClick=lambda: [
-                                  setattr(st.session_state, 'authenticated_email', email),
-                                  st.rerun()
-                              ])
-                else:
-                    ui.element("button",
-                              key="send_link_btn",
-                              text="Send Login Link",
-                              onClick=lambda: handle_login_click(email))
+                       key="email_input",
+                       placeholder="@moe, @school or @string.sg")
+            if dev_mode:
+                if st.button("Dev Login"):
+                    st.session_state.authenticated_email = email
+                    st.rerun()
+            else:
+                if st.button("Send Login Link"):
+                    if email and is_valid_email_domain(email):
+                        magic_link = generate_magic_link(email)
+                        if magic_link and send_magic_link(email, magic_link):
+                            st.success(
+                                "Login link sent! Please check your email.")
+                        else:
+                            st.error("Failed to send login link.")
+                    else:
+                        st.error("Please use a valid MOE email address.")
             return
 
     # Initialize app state
