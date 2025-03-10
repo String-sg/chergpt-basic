@@ -86,7 +86,7 @@ def main():
             if dev_mode:
                 if st.button("Dev Login", key="dev_login", use_container_width=True):
                     if email and email.strip():
-                        st.session_state.authenticated_email = email.strip()x
+                        st.session_state.authenticated_email = email.strip()
                         st.rerun()
                     else:
                         st.error("Please enter an email address")
