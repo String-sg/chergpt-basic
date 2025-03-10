@@ -11,7 +11,9 @@ try:
 except ImportError:
     RESEND_AVAILABLE = False
 
-ALLOWED_DOMAINS = ['moe.edu.sg', 'moe.gov.sg', 'schools.gov.sg', 'string.sg']
+ALLOWED_DOMAINS = [
+    'moe.edu.sg', 'moe.gov.sg', 'schools.gov.sg', 'string.sg', 'hci.edu.sg'
+]
 
 
 def is_valid_email_domain(email):
@@ -78,7 +80,8 @@ def log_auth_attempt(email, success, ip_address=None, user_agent=None):
         return
     try:
         with conn, conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(
+                """
                 INSERT INTO auth_logs (email, success, ip_address, user_agent)
                 VALUES (%s, %s, %s, %s)
             """, (email, success, ip_address, user_agent))
@@ -87,6 +90,7 @@ def log_auth_attempt(email, success, ip_address=None, user_agent=None):
     finally:
         if conn:
             conn.close()
+
 
 def verify_token(token):
     try:
