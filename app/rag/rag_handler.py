@@ -146,9 +146,10 @@ class RAGHandler:
             'market', 'supply', 'demand', 'price', 'cost', 'revenue', 'profit',
             'competition', 'monopoly', 'oligopoly', 'consumer', 'producer',
             'economics', 'economic', 'economy', 'gdp', 'inflation', 'government',
-            'intervention', 'regulation', 'externality', 'public goods',
+            'intervention', 'regulation', 'externality', 'externalities', 'public goods',
             'market failure', 'efficiency', 'equity', 'welfare', 'subsidy',
-            'tax', 'taxation', 'elasticity', 'surplus', 'deadweight loss'
+            'tax', 'taxation', 'elasticity', 'surplus', 'deadweight loss',
+            'fiscal', 'monetary', 'policy', 'trade', 'international'
         ]
         
         query_lower = query.lower()

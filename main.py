@@ -22,6 +22,14 @@ if "is_admin" not in st.session_state:
 if "conversation_id" not in st.session_state:
     st.session_state["conversation_id"] = str(uuid.uuid4())
 
+# Initialize user name in session state
+if "user_name" not in st.session_state:
+    st.session_state["user_name"] = ""
+
+# Initialize RAG settings
+if "use_rag" not in st.session_state:
+    st.session_state["use_rag"] = True
+
 # Set up the sidebar
 setup_sidebar()
 
@@ -89,11 +97,30 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(prompt)
 
 
-    # Prepend custom instructions to the conversation context for processing
+    # Prepend custom instructions and RAG context to the conversation context for processing
     conversation_context = []
+    
+    # Add custom instructions first
     if existing_instructions:
         conversation_context.append(
             {"role": "system", "content": custom_instructions})
+    
+    # Add RAG context if enabled and relevant
+    rag_context = ""
+    if st.session_state.get("use_rag", True):
+        try:
+            # Check if query might benefit from economics context
+            if rag_handler.is_economics_related(prompt):
+                with st.spinner("🔍 Searching course materials..."):
+                    rag_context = rag_handler.retrieve_context(prompt, top_k=4, similarity_threshold=0.6)
+                    
+                if rag_context:
+                    st.info("📚 Found relevant content from your Economics materials")
+                    conversation_context.append(
+                        {"role": "system", "content": rag_context})
+        except Exception as e:
+            logging.error(f"RAG retrieval failed: {e}")
+            st.warning("⚠️ Could not search course materials, proceeding without context")
 
     conversation_context += [
         {"role": m["role"], "content": m["content"]}
