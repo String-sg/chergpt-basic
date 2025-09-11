@@ -9,7 +9,7 @@ import uuid
 from openai import OpenAI
 import streamlit as st
 
-def insert_chat_log(prompt, response, conversation_id):
+def insert_chat_log(prompt, response, conversation_id, user_name=None):
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
@@ -22,9 +22,9 @@ def insert_chat_log(prompt, response, conversation_id):
     try:
         with conn, conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO chat_logs (prompt, response, timestamp, conversation_id)
-                VALUES (%s, %s, %s, %s)
-            """, (prompt, response, now_in_sgt, conversation_uuid))
+                INSERT INTO chat_logs (prompt, response, timestamp, conversation_id, user_name)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (prompt, response, now_in_sgt, conversation_uuid, user_name))
             conn.commit()
             logging.info("Chat log inserted successfully.")
     except Exception as e:
