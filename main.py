@@ -118,9 +118,15 @@ if prompt := st.chat_input("What is up?"):
                     st.info("📚 Found relevant content from your Economics materials")
                     conversation_context.append(
                         {"role": "system", "content": rag_context})
+                else:
+                    st.info("🔍 Searched course materials but found no highly relevant content")
         except Exception as e:
             logging.error(f"RAG retrieval failed: {e}")
             st.warning("⚠️ Could not search course materials, proceeding without context")
+    else:
+        # RAG is disabled - check if this was an economics question
+        if rag_handler.is_economics_related(prompt):
+            st.info("📚 Course material search is currently disabled by your educator")
 
     conversation_context += [
         {"role": m["role"], "content": m["content"]}

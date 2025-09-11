@@ -17,20 +17,19 @@ def load_summaries():
 def setup_sidebar():
     with st.sidebar:
         st.title("Settings")
-        # RAG Settings (visible to all users)
-        with st.expander("📚 Course Materials"):
-            st.session_state["use_rag"] = st.checkbox(
-                "Enable course material search", 
-                value=st.session_state.get("use_rag", True),
-                help="When enabled, the chatbot will search through your Economics materials for relevant context"
-            )
-            
+        # RAG Status (read-only for general users)
+        with st.expander("📚 Course Materials"):            
             try:
                 stats = rag_handler.get_rag_stats()
                 if "error" not in stats:
-                    st.caption(f"📊 Database: {stats['total_chunks']} content chunks available")
-                    if stats['total_chunks'] == 0:
-                        st.warning("⚠️ No course materials found. Run the PDF processing script first.")
+                    if stats['total_chunks'] > 0:
+                        rag_status = "✅ Enabled" if st.session_state.get("use_rag", True) else "❌ Disabled"
+                        st.write(f"**Status:** {rag_status}")
+                        st.caption(f"📊 Database: {stats['total_chunks']} content chunks available")
+                        if not st.session_state.get("use_rag", True):
+                            st.info("💡 Course material search is currently disabled by an educator")
+                    else:
+                        st.warning("⚠️ No course materials found. Contact your educator.")
                 else:
                     st.error(f"Database error: {stats['error']}")
             except Exception as e:
@@ -91,6 +90,18 @@ def setup_sidebar():
                     delete_all_chatlogs()
                     
             with st.expander("📚 RAG Management"):
+                # RAG Enable/Disable Toggle (Admin only)
+                st.session_state["use_rag"] = st.checkbox(
+                    "Enable course material search for all users", 
+                    value=st.session_state.get("use_rag", True),
+                    help="When enabled, the chatbot will search through Economics materials for relevant context when students ask economics-related questions"
+                )
+                
+                if not st.session_state.get("use_rag", True):
+                    st.warning("⚠️ Course material search is currently disabled for all users")
+                
+                st.divider()
+                
                 # Show detailed RAG statistics
                 try:
                     stats = rag_handler.get_rag_stats()
