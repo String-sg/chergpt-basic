@@ -27,8 +27,6 @@ setup_sidebar()
 # Display the app description to all users
 st.markdown(app_description, unsafe_allow_html=True)
 
-<<<<<<< Updated upstream
-=======
 # Name input section - show only if name is not set
 if not st.session_state["user_name"]:
     st.subheader("Welcome! Please enter your name to start chatting:")
@@ -43,7 +41,6 @@ if not st.session_state["user_name"]:
     # Stop here if name is not provided
     st.stop()
 
->>>>>>> Stashed changes
 initialize_chatlog_table()
 
 # Admin panel actions
