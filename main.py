@@ -9,6 +9,7 @@ from app.chatlog.chatlog_handler import insert_chat_log, initialize_chatlog_tabl
 from sidebar import setup_sidebar
 from app.db.database_connection import get_app_description, get_app_title, initialize_db, update_app_description
 from app.instructions.instructions_handler import get_latest_instructions
+from app.rag.rag_handler import rag_handler
 import uuid
 
 app_title = get_app_title()
