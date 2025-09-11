@@ -27,6 +27,23 @@ setup_sidebar()
 # Display the app description to all users
 st.markdown(app_description, unsafe_allow_html=True)
 
+<<<<<<< Updated upstream
+=======
+# Name input section - show only if name is not set
+if not st.session_state["user_name"]:
+    st.subheader("Welcome! Please enter your name to start chatting:")
+    name_input = st.text_input("Your name:", placeholder="Enter your name here...")
+    if st.button("Start Chatting", key="start_chat_button"):
+        if name_input.strip():
+            st.session_state["user_name"] = name_input.strip()
+            st.rerun()
+        else:
+            st.error("Please enter your name before starting.")
+    
+    # Stop here if name is not provided
+    st.stop()
+
+>>>>>>> Stashed changes
 initialize_chatlog_table()
 
 # Admin panel actions
