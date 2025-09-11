@@ -143,7 +143,7 @@ if prompt := st.chat_input("What is up?"):
         ):
             full_response += (response.choices[0].delta.content or "")
             message_placeholder.markdown(full_response + "▌")
-        insert_chat_log(prompt, full_response, st.session_state["conversation_id"])
+        insert_chat_log(prompt, full_response, st.session_state["conversation_id"], st.session_state.get("user_name"))
         message_placeholder.markdown(full_response)
 
     # Append the assistant's response to the messages for display
