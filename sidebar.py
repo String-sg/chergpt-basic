@@ -30,44 +30,6 @@ def setup_sidebar():
                         if not st.session_state.get("use_rag", True):
                             st.info("💡 Course material search is currently disabled by an educator")
 
-                        # File Selection Interface for all users
-                        if st.session_state.get("user_name"):
-                            st.divider()
-                            st.write("**📁 Select Materials:**")
-                            st.caption("Choose which materials to include in your searches")
-
-                            user_files = rag_handler.get_user_file_selections(st.session_state["user_name"])
-
-                            if user_files:
-                                for file_info in user_files:
-                                    col1, col2 = st.columns([4, 1])
-
-                                    with col1:
-                                        st.write(f"📄 **{file_info['file_name']}**")
-                                        st.caption(f"Chunks: {file_info['chunks_count']}")
-
-                                    with col2:
-                                        # Use unique key for each checkbox
-                                        checkbox_key = f"file_select_{file_info['id']}_{st.session_state['user_name']}"
-                                        is_selected = st.checkbox(
-                                            "Include",
-                                            value=file_info['is_selected'],
-                                            key=checkbox_key,
-                                            help=f"Include {file_info['file_name']} in searches"
-                                        )
-
-                                        # Update selection if changed
-                                        if is_selected != file_info['is_selected']:
-                                            if rag_handler.update_user_file_selection(
-                                                st.session_state["user_name"],
-                                                file_info['id'],
-                                                is_selected
-                                            ):
-                                                st.rerun()
-                            else:
-                                st.info("No materials available for selection.")
-                        else:
-                            st.info("Please enter your name to select materials.")
                     else:
                         st.warning("⚠️ No course materials found. Contact your educator.")
                 else:
@@ -162,6 +124,8 @@ def setup_sidebar():
 
                 # Ingested Files Management
                 st.write("**📁 Ingested Files:**")
+                st.caption("Manage uploaded materials and control what students can search")
+
                 try:
                     ingested_files = rag_handler.get_ingested_files_list()
 
@@ -186,7 +150,7 @@ def setup_sidebar():
                             with col2:
                                 if file_info['status'] == 'failed':
                                     if st.button("🔄", key=f"retry_{file_info['id']}", help="Retry processing"):
-                                        st.info(f"To retry processing {file_info['file_name']}, run: `python process_pdf.py {file_info['file_path']}`")
+                                        st.info(f"To retry processing {file_info['file_name']}, use the upload interface above")
 
                             with col3:
                                 if st.button("🗑️", key=f"delete_{file_info['id']}", help="Delete file record"):
@@ -196,7 +160,7 @@ def setup_sidebar():
                                     else:
                                         st.error("Failed to delete file record")
                     else:
-                        st.info("No files have been ingested yet. Run `python process_pdf.py <filename>` to ingest PDF files.")
+                        st.info("No files have been ingested yet. Use the upload interface above to add materials.")
 
                 except Exception as e:
                     st.error(f"Could not load ingested files: {e}")
