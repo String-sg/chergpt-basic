@@ -14,7 +14,7 @@ import PyPDF2
 import tiktoken
 from openai import OpenAI
 import streamlit as st
-from app.db.database_connection import connect_to_db
+from app.db.database_connection import connect_to_db, insert_ingested_file, update_ingested_file_status
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -101,6 +101,14 @@ class PDFEmbeddingProcessor:
     def create_content_hash(self, content: str) -> str:
         """Create hash of content to prevent duplicates"""
         return hashlib.md5(content.encode()).hexdigest()
+
+    def create_file_hash(self, file_path: str) -> str:
+        """Create hash of entire file to track ingested files"""
+        hash_sha256 = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_sha256.update(chunk)
+        return hash_sha256.hexdigest()
     
     def initialize_rag_table(self):
         """Initialize the RAG chunks table with pgvector support"""
