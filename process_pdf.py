@@ -197,41 +197,70 @@ class PDFEmbeddingProcessor:
         """Main processing function"""
         if not os.path.exists(pdf_path):
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
-        
-        # Initialize database
-        self.initialize_rag_table()
-        
-        # Extract and chunk text
-        text = self.extract_text_from_pdf(pdf_path)
-        chunks = self.chunk_text(text)
-        
-        logger.info(f"Processing {len(chunks)} chunks...")
-        
-        successful_chunks = 0
-        failed_chunks = 0
-        
-        for i, chunk in enumerate(chunks):
-            try:
-                logger.info(f"Processing chunk {i + 1}/{len(chunks)}")
-                
-                # Get embedding
-                embedding = self.get_embedding_with_retry(chunk)
-                
-                # Store in database
-                self.store_chunk_embedding(chunk, embedding)
-                
-                successful_chunks += 1
-                
-                # Rate limiting - be respectful to OpenAI API
-                time.sleep(0.1)
-                
-            except Exception as e:
-                logger.error(f"Failed to process chunk {i + 1}: {e}")
-                failed_chunks += 1
-                continue
-        
-        logger.info(f"Processing complete! Success: {successful_chunks}, Failed: {failed_chunks}")
-        return successful_chunks, failed_chunks
+
+        # Get file info for tracking
+        file_name = os.path.basename(pdf_path)
+        file_size = os.path.getsize(pdf_path)
+        file_hash = self.create_file_hash(pdf_path)
+
+        logger.info(f"Processing file: {file_name} ({file_size} bytes)")
+
+        # Create ingested file record
+        file_id = insert_ingested_file(file_name, pdf_path, file_size, file_hash, 'processing')
+
+        if not file_id:
+            logger.error("Failed to create ingested file record")
+            raise Exception("Database error: could not track file ingestion")
+
+        try:
+            # Initialize database
+            self.initialize_rag_table()
+
+            # Extract and chunk text
+            text = self.extract_text_from_pdf(pdf_path)
+            chunks = self.chunk_text(text)
+
+            logger.info(f"Processing {len(chunks)} chunks...")
+
+            successful_chunks = 0
+            failed_chunks = 0
+
+            for i, chunk in enumerate(chunks):
+                try:
+                    logger.info(f"Processing chunk {i + 1}/{len(chunks)}")
+
+                    # Get embedding
+                    embedding = self.get_embedding_with_retry(chunk)
+
+                    # Store in database
+                    self.store_chunk_embedding(chunk, embedding)
+
+                    successful_chunks += 1
+
+                    # Rate limiting - be respectful to OpenAI API
+                    time.sleep(0.1)
+
+                except Exception as e:
+                    logger.error(f"Failed to process chunk {i + 1}: {e}")
+                    failed_chunks += 1
+                    continue
+
+            # Update file status to completed
+            if failed_chunks == 0:
+                update_ingested_file_status(file_id, 'completed', chunks_count=successful_chunks)
+                logger.info(f"Processing complete! All {successful_chunks} chunks processed successfully")
+            else:
+                error_msg = f"Partial failure: {failed_chunks} chunks failed"
+                update_ingested_file_status(file_id, 'completed', chunks_count=successful_chunks, error_message=error_msg)
+                logger.warning(f"Processing complete with warnings! Success: {successful_chunks}, Failed: {failed_chunks}")
+
+            return successful_chunks, failed_chunks
+
+        except Exception as e:
+            # Update file status to failed
+            update_ingested_file_status(file_id, 'failed', error_message=str(e))
+            logger.error(f"File processing failed: {e}")
+            raise
 
 
 def main():

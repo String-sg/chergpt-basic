@@ -8,7 +8,7 @@ from typing import List, Tuple, Optional
 import tiktoken
 from openai import OpenAI
 import streamlit as st
-from app.db.database_connection import connect_to_db
+from app.db.database_connection import connect_to_db, get_ingested_files, delete_ingested_file
 
 logger = logging.getLogger(__name__)
 
@@ -184,6 +184,25 @@ class RAGHandler:
             return {"error": str(e)}
         finally:
             conn.close()
+
+    def get_ingested_files_list(self) -> List[dict]:
+        """Get list of all ingested files for admin interface"""
+        return get_ingested_files()
+
+    def remove_ingested_file(self, file_id: int) -> bool:
+        """Remove an ingested file record"""
+        return delete_ingested_file(file_id)
+
+    def format_file_size(self, size_bytes: int) -> str:
+        """Format file size in human readable format"""
+        if size_bytes == 0:
+            return "0 B"
+        size_names = ["B", "KB", "MB", "GB"]
+        i = 0
+        while size_bytes >= 1024 and i < len(size_names) - 1:
+            size_bytes /= 1024
+            i += 1
+        return f"{size_bytes:.1f} {size_names[i]}"
 
 
 # Global RAG handler instance
