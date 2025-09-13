@@ -205,19 +205,23 @@ def setup_sidebar():
                 st.write("**Upload PDF files to make them searchable**")
                 st.caption("⚠️ Files are processed in memory and never stored on the server for security")
 
-                # File size and security info
-                with st.expander("📋 Upload Guidelines"):
-                    st.write("**File Requirements:**")
-                    st.write("- PDF format only")
-                    st.write("- Maximum size: 50MB per file")
-                    st.write("- Maximum pages: 1,000 per file")
-                    st.write("- Encrypted PDFs not supported")
-                    st.write("")
-                    st.write("**Security:**")
-                    st.write("- Files processed entirely in memory")
-                    st.write("- Original files never saved to disk")
-                    st.write("- Only text chunks and embeddings stored")
-                    st.write("- Automatic duplicate detection")
+                # File size and security info (using regular markdown instead of nested expander)
+                st.markdown("**📋 Upload Guidelines:**")
+                st.markdown("""
+                **File Requirements:**
+                - PDF format only
+                - Maximum size: 50MB per file
+                - Maximum pages: 1,000 per file
+                - Encrypted PDFs not supported
+
+                **Security:**
+                - Files processed entirely in memory
+                - Original files never saved to disk
+                - Only text chunks and embeddings stored
+                - Automatic duplicate detection
+                """)
+
+                st.divider()
 
                 # Upload interface
                 uploaded_files = st.file_uploader(
@@ -241,7 +245,16 @@ def setup_sidebar():
                     st.write(f"**Total size:** {rag_handler.format_file_size(total_size)}")
 
                     # Processing button
-                    if st.button("🚀 Process Files", type="primary", key="process_files_btn"):
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        process_btn = st.button("🚀 Process Files", type="primary", key="process_files_btn")
+                    with col2:
+                        clear_btn = st.button("🗑️ Clear", key="clear_upload")
+
+                    if clear_btn:
+                        st.rerun()
+
+                    if process_btn:
                         with st.spinner("🔐 Processing files securely..."):
                             # Show security reminder
                             st.info("🔒 Processing files in memory - no data stored on disk")
@@ -270,18 +283,17 @@ def setup_sidebar():
                                     for error in results['errors']:
                                         st.write(f"- {error}")
 
-                                # Detailed results
-                                with st.expander("📋 Detailed Results"):
+                                # Show detailed results summary (not nested expander)
+                                if results['details']:
+                                    st.write("**📋 Processing Details:**")
                                     for detail in results['details']:
                                         status_icon = {'completed': '✅', 'partial': '⚠️', 'failed': '❌'}.get(detail['status'], '❓')
-                                        st.write(f"{status_icon} **{detail['filename']}**")
-                                        st.write(f"  - Status: {detail['status']}")
+                                        status_text = f"{status_icon} **{detail['filename']}** - {detail['status']}"
                                         if detail['chunks'] > 0:
-                                            st.write(f"  - Chunks: {detail['chunks']}")
+                                            status_text += f" ({detail['chunks']} chunks)"
+                                        st.write(status_text)
                                         if detail['error']:
-                                            st.write(f"  - Error: {detail['error']}")
-                                        for warning in detail['warnings']:
-                                            st.write(f"  - Warning: {warning}")
+                                            st.caption(f"❌ {detail['error']}")
 
                                 # Refresh the page to show new files
                                 if results['successful_files'] > 0:
@@ -291,10 +303,8 @@ def setup_sidebar():
 
                             except Exception as e:
                                 st.error(f"Processing failed: {str(e)}")
-
-                # Clear upload after processing
-                if st.button("🗑️ Clear Upload", key="clear_upload"):
-                    st.rerun()
+                else:
+                    st.info("👆 Select PDF files above to get started")
 
             with st.expander("⚠️ Warning: destructive actions"):
                 if st.button("Drop chatlog table"):
