@@ -130,8 +130,22 @@ class PDFEmbeddingProcessor:
                         content TEXT NOT NULL,
                         embedding VECTOR(1536),
                         content_hash VARCHAR(32) UNIQUE,
+                        file_id INTEGER REFERENCES ingested_files(id) ON DELETE CASCADE,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     );
+                """)
+
+                # Add file_id column if it doesn't exist (for existing databases)
+                cur.execute("""
+                    DO $$
+                    BEGIN
+                        BEGIN
+                            ALTER TABLE rag_chunks ADD COLUMN file_id INTEGER REFERENCES ingested_files(id) ON DELETE CASCADE;
+                        EXCEPTION
+                            WHEN duplicate_column THEN
+                            -- Column already exists, do nothing
+                        END;
+                    END $$;
                 """)
                 
                 # Create index for similarity search
@@ -165,28 +179,28 @@ class PDFEmbeddingProcessor:
         finally:
             conn.close()
     
-    def store_chunk_embedding(self, content: str, embedding: List[float]):
+    def store_chunk_embedding(self, content: str, embedding: List[float], file_id: int):
         """Store chunk and embedding in database"""
         content_hash = self.create_content_hash(content)
-        
+
         # Skip if already exists
         if self.chunk_exists(content_hash):
             logger.debug("Chunk already exists, skipping...")
             return
-        
+
         conn = connect_to_db()
         if conn is None:
             raise Exception("Failed to connect to database")
-        
+
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                    INSERT INTO rag_chunks (content, embedding, content_hash)
-                    VALUES (%s, %s, %s)
+                    INSERT INTO rag_chunks (content, embedding, content_hash, file_id)
+                    VALUES (%s, %s, %s, %s)
                     ON CONFLICT (content_hash) DO NOTHING
-                """, (content, embedding, content_hash))
+                """, (content, embedding, content_hash, file_id))
                 conn.commit()
-                
+
         except Exception as e:
             logger.error(f"Failed to store chunk: {e}")
             raise
@@ -233,7 +247,7 @@ class PDFEmbeddingProcessor:
                     embedding = self.get_embedding_with_retry(chunk)
 
                     # Store in database
-                    self.store_chunk_embedding(chunk, embedding)
+                    self.store_chunk_embedding(chunk, embedding, file_id)
 
                     successful_chunks += 1
 

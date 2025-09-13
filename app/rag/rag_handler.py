@@ -8,7 +8,7 @@ from typing import List, Tuple, Optional
 import tiktoken
 from openai import OpenAI
 import streamlit as st
-from app.db.database_connection import connect_to_db, get_ingested_files, delete_ingested_file
+from app.db.database_connection import connect_to_db, get_ingested_files, delete_ingested_file, get_selected_file_ids, get_user_file_selections, update_user_file_selection
 
 logger = logging.getLogger(__name__)
 
@@ -32,29 +32,50 @@ class RAGHandler:
             logger.error(f"Failed to get query embedding: {e}")
             raise
     
-    def similarity_search(self, query_embedding: List[float], limit: int = 5) -> List[Tuple[str, float]]:
+    def similarity_search(self, query_embedding: List[float], limit: int = 5, user_name: str = None) -> List[Tuple[str, float]]:
         """
         Perform similarity search using cosine similarity
         Returns list of (content, similarity_score) tuples
+        Filters by user's selected files if user_name is provided
         """
         conn = connect_to_db()
         if conn is None:
             logger.error("Failed to connect to database for similarity search")
             return []
-        
+
         try:
             with conn.cursor() as cur:
-                # Use pgvector's cosine similarity operator
-                cur.execute("""
-                    SELECT content, (1 - (embedding <=> %s::vector)) as similarity
-                    FROM rag_chunks
-                    ORDER BY embedding <=> %s::vector
-                    LIMIT %s
-                """, (query_embedding, query_embedding, limit))
-                
+                if user_name:
+                    # Get selected file IDs for this user
+                    selected_file_ids = get_selected_file_ids(user_name)
+
+                    if not selected_file_ids:
+                        logger.info(f"No files selected for user {user_name}")
+                        return []
+
+                    # Use pgvector's cosine similarity operator with file filtering
+                    placeholders = ','.join(['%s'] * len(selected_file_ids))
+                    query = f"""
+                        SELECT content, (1 - (embedding <=> %s::vector)) as similarity
+                        FROM rag_chunks
+                        WHERE file_id IN ({placeholders})
+                        ORDER BY embedding <=> %s::vector
+                        LIMIT %s
+                    """
+                    params = [query_embedding] + selected_file_ids + [query_embedding, limit]
+                    cur.execute(query, params)
+                else:
+                    # Original query without filtering
+                    cur.execute("""
+                        SELECT content, (1 - (embedding <=> %s::vector)) as similarity
+                        FROM rag_chunks
+                        ORDER BY embedding <=> %s::vector
+                        LIMIT %s
+                    """, (query_embedding, query_embedding, limit))
+
                 results = cur.fetchall()
                 return [(content, float(similarity)) for content, similarity in results]
-                
+
         except Exception as e:
             logger.error(f"Similarity search failed: {e}")
             return []
@@ -108,31 +129,31 @@ class RAGHandler:
         logger.info(f"Built context with {len(context_parts)-1} chunks, {total_tokens} tokens")
         return context
     
-    def retrieve_context(self, query: str, top_k: int = 5, 
-                        similarity_threshold: float = 0.7) -> Optional[str]:
+    def retrieve_context(self, query: str, top_k: int = 5,
+                        similarity_threshold: float = 0.7, user_name: str = None) -> Optional[str]:
         """
         Main retrieval function - get relevant context for a query
         """
         try:
             # Get query embedding
             query_embedding = self.get_query_embedding(query)
-            
-            # Perform similarity search
-            relevant_chunks = self.similarity_search(query_embedding, limit=top_k)
-            
+
+            # Perform similarity search with user filtering
+            relevant_chunks = self.similarity_search(query_embedding, limit=top_k, user_name=user_name)
+
             if not relevant_chunks:
                 logger.info("No relevant chunks found")
                 return None
-                
+
             # Log similarity scores
-            logger.info(f"Found {len(relevant_chunks)} chunks with similarities: " + 
+            logger.info(f"Found {len(relevant_chunks)} chunks with similarities: " +
                        ", ".join([f"{sim:.3f}" for _, sim in relevant_chunks]))
-            
+
             # Build context
             context = self.build_context(relevant_chunks, similarity_threshold)
-            
+
             return context if context.strip() else None
-            
+
         except Exception as e:
             logger.error(f"Context retrieval failed: {e}")
             return None
@@ -203,6 +224,14 @@ class RAGHandler:
             size_bytes /= 1024
             i += 1
         return f"{size_bytes:.1f} {size_names[i]}"
+
+    def get_user_file_selections(self, user_name: str) -> List[dict]:
+        """Get user's file selections for UI"""
+        return get_user_file_selections(user_name)
+
+    def update_user_file_selection(self, user_name: str, file_id: int, is_selected: bool) -> bool:
+        """Update user's file selection"""
+        return update_user_file_selection(user_name, file_id, is_selected)
 
 
 # Global RAG handler instance
