@@ -233,6 +233,78 @@ class RAGHandler:
         """Update user's file selection"""
         return update_user_file_selection(user_name, file_id, is_selected)
 
+    def process_uploaded_files(self, uploaded_files: list) -> dict:
+        """
+        Process uploaded files securely from Streamlit file uploader
+        Returns processing results with security measures
+        """
+        from process_pdf import PDFEmbeddingProcessor
+
+        results = {
+            'total_files': len(uploaded_files),
+            'successful_files': 0,
+            'failed_files': 0,
+            'total_chunks': 0,
+            'errors': [],
+            'warnings': [],
+            'details': []
+        }
+
+        processor = PDFEmbeddingProcessor()
+
+        for uploaded_file in uploaded_files:
+            file_result = {
+                'filename': uploaded_file.name,
+                'status': 'processing',
+                'chunks': 0,
+                'error': None,
+                'warnings': []
+            }
+
+            try:
+                # Read file content from Streamlit's UploadedFile object
+                file_content = uploaded_file.read()
+
+                # Security validation first
+                validation = processor.validate_uploaded_file(file_content, uploaded_file.name)
+
+                if not validation['valid']:
+                    file_result['status'] = 'failed'
+                    file_result['error'] = validation['error']
+                    results['errors'].append(f"{uploaded_file.name}: {validation['error']}")
+                    results['failed_files'] += 1
+                else:
+                    # Add warnings
+                    file_result['warnings'] = validation['warnings']
+                    results['warnings'].extend([f"{uploaded_file.name}: {w}" for w in validation['warnings']])
+
+                    # Process the file
+                    successful_chunks, failed_chunks = processor.process_uploaded_file(file_content, uploaded_file.name)
+
+                    file_result['chunks'] = successful_chunks
+                    file_result['status'] = 'completed' if failed_chunks == 0 else 'partial'
+
+                    if failed_chunks > 0:
+                        file_result['error'] = f"{failed_chunks} chunks failed to process"
+
+                    results['successful_files'] += 1
+                    results['total_chunks'] += successful_chunks
+
+            except Exception as e:
+                file_result['status'] = 'failed'
+                file_result['error'] = str(e)
+                results['errors'].append(f"{uploaded_file.name}: {str(e)}")
+                results['failed_files'] += 1
+
+            finally:
+                # Security cleanup - ensure file content is cleared
+                file_content = None
+                uploaded_file.seek(0)  # Reset file pointer for Streamlit
+
+            results['details'].append(file_result)
+
+        return results
+
 
 # Global RAG handler instance
 rag_handler = RAGHandler()
