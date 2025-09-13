@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 from app.chatlog.chatlog_handler import compile_summaries, delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table, fetch_and_batch_chatlogs, generate_summary_for_each_group
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
 from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description, get_app_title, update_app_title
@@ -199,7 +200,102 @@ def setup_sidebar():
 
                 except Exception as e:
                     st.error(f"Could not load ingested files: {e}")
-                    
+
+            with st.expander("📤 Upload New Materials"):
+                st.write("**Upload PDF files to make them searchable**")
+                st.caption("⚠️ Files are processed in memory and never stored on the server for security")
+
+                # File size and security info
+                with st.expander("📋 Upload Guidelines"):
+                    st.write("**File Requirements:**")
+                    st.write("- PDF format only")
+                    st.write("- Maximum size: 50MB per file")
+                    st.write("- Maximum pages: 1,000 per file")
+                    st.write("- Encrypted PDFs not supported")
+                    st.write("")
+                    st.write("**Security:**")
+                    st.write("- Files processed entirely in memory")
+                    st.write("- Original files never saved to disk")
+                    st.write("- Only text chunks and embeddings stored")
+                    st.write("- Automatic duplicate detection")
+
+                # Upload interface
+                uploaded_files = st.file_uploader(
+                    "Choose PDF files",
+                    type=['pdf'],
+                    accept_multiple_files=True,
+                    key="pdf_uploader",
+                    help="Select one or more PDF files to upload and process"
+                )
+
+                if uploaded_files:
+                    # Show file preview
+                    st.write(f"**📁 Selected Files ({len(uploaded_files)}):**")
+                    total_size = 0
+                    for file in uploaded_files:
+                        file_size = len(file.getvalue())
+                        total_size += file_size
+                        size_str = rag_handler.format_file_size(file_size)
+                        st.write(f"- {file.name} ({size_str})")
+
+                    st.write(f"**Total size:** {rag_handler.format_file_size(total_size)}")
+
+                    # Processing button
+                    if st.button("🚀 Process Files", type="primary", key="process_files_btn"):
+                        with st.spinner("🔐 Processing files securely..."):
+                            # Show security reminder
+                            st.info("🔒 Processing files in memory - no data stored on disk")
+
+                            # Process files
+                            try:
+                                results = rag_handler.process_uploaded_files(uploaded_files)
+
+                                # Show results
+                                if results['successful_files'] > 0:
+                                    st.success(f"✅ Successfully processed {results['successful_files']} files!")
+                                    st.info(f"📊 Total chunks created: {results['total_chunks']}")
+
+                                if results['failed_files'] > 0:
+                                    st.error(f"❌ {results['failed_files']} files failed to process")
+
+                                # Show warnings
+                                if results['warnings']:
+                                    st.warning("⚠️ Warnings:")
+                                    for warning in results['warnings']:
+                                        st.write(f"- {warning}")
+
+                                # Show errors
+                                if results['errors']:
+                                    st.error("❌ Errors:")
+                                    for error in results['errors']:
+                                        st.write(f"- {error}")
+
+                                # Detailed results
+                                with st.expander("📋 Detailed Results"):
+                                    for detail in results['details']:
+                                        status_icon = {'completed': '✅', 'partial': '⚠️', 'failed': '❌'}.get(detail['status'], '❓')
+                                        st.write(f"{status_icon} **{detail['filename']}**")
+                                        st.write(f"  - Status: {detail['status']}")
+                                        if detail['chunks'] > 0:
+                                            st.write(f"  - Chunks: {detail['chunks']}")
+                                        if detail['error']:
+                                            st.write(f"  - Error: {detail['error']}")
+                                        for warning in detail['warnings']:
+                                            st.write(f"  - Warning: {warning}")
+
+                                # Refresh the page to show new files
+                                if results['successful_files'] > 0:
+                                    st.success("🔄 Refreshing to show new files...")
+                                    time.sleep(2)
+                                    st.rerun()
+
+                            except Exception as e:
+                                st.error(f"Processing failed: {str(e)}")
+
+                # Clear upload after processing
+                if st.button("🗑️ Clear Upload", key="clear_upload"):
+                    st.rerun()
+
             with st.expander("⚠️ Warning: destructive actions"):
                 if st.button("Drop chatlog table"):
                     drop_chatlog_table()
