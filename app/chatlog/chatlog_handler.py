@@ -9,7 +9,7 @@ import uuid
 from openai import OpenAI
 import streamlit as st
 
-def insert_chat_log(prompt, response, conversation_id):
+def insert_chat_log(prompt, response, conversation_id, user_name=None):
     conn = connect_to_db()
     if conn is None:
         logging.error("Failed to connect to the database.")
@@ -22,9 +22,9 @@ def insert_chat_log(prompt, response, conversation_id):
     try:
         with conn, conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO chat_logs (prompt, response, timestamp, conversation_id)
-                VALUES (%s, %s, %s, %s)
-            """, (prompt, response, now_in_sgt, conversation_uuid))
+                INSERT INTO chat_logs (prompt, response, timestamp, conversation_id, user_name)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (prompt, response, now_in_sgt, conversation_uuid, user_name))
             conn.commit()
             logging.info("Chat log inserted successfully.")
     except Exception as e:
@@ -47,8 +47,22 @@ def initialize_chatlog_table():
                     timestamp TIMESTAMP DEFAULT current_timestamp,
                     prompt TEXT,
                     response TEXT,
-                    conversation_id UUID
+                    conversation_id UUID,
+                    user_name TEXT
                 );
+            """)
+            
+            # Add user_name column if it doesn't exist (for existing databases)
+            cur.execute("""
+                DO $$ 
+                BEGIN 
+                    BEGIN
+                        ALTER TABLE chat_logs ADD COLUMN user_name TEXT;
+                    EXCEPTION
+                        WHEN duplicate_column THEN
+                        -- Column already exists, do nothing
+                    END;
+                END $$;
             """)
             conn.commit()
             logging.info("Chatlog table (re)created successfully.")
@@ -111,8 +125,8 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
     # Create a CSV in memory with UTF-8 encoding
     output = io.StringIO()
     writer = csv.writer(output)
-    # Ensure headers match the database columns, including 'ConversationID'
-    writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response', 'ConversationID'])
+    # Ensure headers match the database columns, including 'ConversationID' and 'UserName'
+    writer.writerow(['ID', 'Timestamp', 'Prompt', 'Response', 'ConversationID', 'UserName'])
     # Iterate through each chat log entry and write to CSV
     for log in chat_logs:
         writer.writerow(log)  # Directly write the log as it should match the headers

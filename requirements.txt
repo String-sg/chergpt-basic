@@ -3,3 +3,6 @@ openai
 psycopg2-binary
 pytest
 streamlit-feedback
+PyPDF2
+tiktoken
+pgvector
