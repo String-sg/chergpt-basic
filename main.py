@@ -112,6 +112,7 @@ if prompt := st.chat_input("What is up?"):
             # Check if query might benefit from economics context
             if rag_handler.is_economics_related(prompt):
                 with st.spinner("🔍 Searching course materials..."):
+                    # Search all available materials (no user filtering for regular users)
                     rag_context = rag_handler.retrieve_context(prompt, top_k=4, similarity_threshold=0.6)
                     
                 if rag_context:

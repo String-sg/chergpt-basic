@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 from app.chatlog.chatlog_handler import compile_summaries, delete_all_chatlogs, export_chat_logs_to_csv, drop_chatlog_table, fetch_and_batch_chatlogs, generate_summary_for_each_group
 from app.instructions.instructions_handler import get_latest_instructions, update_instructions
 from app.db.database_connection import  drop_instructions_table, get_app_description, update_app_description, get_app_title, update_app_title
@@ -17,8 +18,8 @@ def load_summaries():
 def setup_sidebar():
     with st.sidebar:
         st.title("Settings")
-        # RAG Status (read-only for general users)
-        with st.expander("📚 Course Materials"):            
+        # RAG Status and File Selection (for all users)
+        with st.expander("📚 Course Materials"):
             try:
                 stats = rag_handler.get_rag_stats()
                 if "error" not in stats:
@@ -28,6 +29,7 @@ def setup_sidebar():
                         st.caption(f"📊 Database: {stats['total_chunks']} content chunks available")
                         if not st.session_state.get("use_rag", True):
                             st.info("💡 Course material search is currently disabled by an educator")
+
                     else:
                         st.warning("⚠️ No course materials found. Contact your educator.")
                 else:
@@ -92,16 +94,16 @@ def setup_sidebar():
             with st.expander("📚 RAG Management"):
                 # RAG Enable/Disable Toggle (Admin only)
                 st.session_state["use_rag"] = st.checkbox(
-                    "Enable course material search for all users", 
+                    "Enable course material search for all users",
                     value=st.session_state.get("use_rag", True),
                     help="When enabled, the chatbot will search through Economics materials for relevant context when students ask economics-related questions"
                 )
-                
+
                 if not st.session_state.get("use_rag", True):
                     st.warning("⚠️ Course material search is currently disabled for all users")
-                
+
                 st.divider()
-                
+
                 # Show detailed RAG statistics
                 try:
                     stats = rag_handler.get_rag_stats()
@@ -110,14 +112,164 @@ def setup_sidebar():
                         st.write(f"- Total chunks: {stats['total_chunks']}")
                         st.write(f"- Average chunk length: {stats['avg_chunk_length']} characters")
                         st.write(f"- Chunk length range: {stats['min_chunk_length']} - {stats['max_chunk_length']}")
-                        
+
                         if st.button("🔄 Re-process PDF"):
                             st.info("Run `python process_pdf.py` from the command line to re-process the PDF file")
                     else:
                         st.error(f"Cannot access RAG database: {stats['error']}")
                 except Exception as e:
                     st.error(f"RAG system error: {e}")
-                    
+
+                st.divider()
+
+                # Ingested Files Management
+                st.write("**📁 Ingested Files:**")
+                st.caption("Manage uploaded materials and control what students can search")
+
+                try:
+                    ingested_files = rag_handler.get_ingested_files_list()
+
+                    if ingested_files:
+                        for file_info in ingested_files:
+                            col1, col2, col3 = st.columns([3, 1, 1])
+
+                            with col1:
+                                status_icon = {
+                                    'completed': '✅',
+                                    'processing': '⏳',
+                                    'failed': '❌'
+                                }.get(file_info['status'], '❓')
+
+                                file_size = rag_handler.format_file_size(file_info['file_size'] or 0)
+                                st.write(f"{status_icon} **{file_info['file_name']}**")
+                                st.caption(f"Size: {file_size} | Chunks: {file_info['chunks_count']} | Ingested: {file_info['ingested_at'].strftime('%Y-%m-%d %H:%M') if file_info['ingested_at'] else 'Unknown'}")
+
+                                if file_info['error_message']:
+                                    st.caption(f"⚠️ {file_info['error_message']}")
+
+                            with col2:
+                                if file_info['status'] == 'failed':
+                                    if st.button("🔄", key=f"retry_{file_info['id']}", help="Retry processing"):
+                                        st.info(f"To retry processing {file_info['file_name']}, use the upload interface above")
+
+                            with col3:
+                                if st.button("🗑️", key=f"delete_{file_info['id']}", help="Delete file record"):
+                                    if rag_handler.remove_ingested_file(file_info['id']):
+                                        st.success(f"Deleted {file_info['file_name']} record")
+                                        st.rerun()
+                                    else:
+                                        st.error("Failed to delete file record")
+                    else:
+                        st.info("No files have been ingested yet. Use the upload interface above to add materials.")
+
+                except Exception as e:
+                    st.error(f"Could not load ingested files: {e}")
+
+            with st.expander("📤 Upload New Materials"):
+                st.write("**Upload PDF files to make them searchable**")
+                st.caption("⚠️ Files are processed in memory and never stored on the server for security")
+
+                # File size and security info (using regular markdown instead of nested expander)
+                st.markdown("**📋 Upload Guidelines:**")
+                st.markdown("""
+                **File Requirements:**
+                - PDF format only
+                - Maximum size: 50MB per file
+                - Maximum pages: 1,000 per file
+                - Encrypted PDFs not supported
+
+                **Security:**
+                - Files processed entirely in memory
+                - Original files never saved to disk
+                - Only text chunks and embeddings stored
+                - Automatic duplicate detection
+                """)
+
+                st.divider()
+
+                # Upload interface
+                uploaded_files = st.file_uploader(
+                    "Choose PDF files",
+                    type=['pdf'],
+                    accept_multiple_files=True,
+                    key="pdf_uploader",
+                    help="Select one or more PDF files to upload and process"
+                )
+
+                if uploaded_files:
+                    # Show file preview
+                    st.write(f"**📁 Selected Files ({len(uploaded_files)}):**")
+                    total_size = 0
+                    for file in uploaded_files:
+                        file_size = len(file.getvalue())
+                        total_size += file_size
+                        size_str = rag_handler.format_file_size(file_size)
+                        st.write(f"- {file.name} ({size_str})")
+
+                    st.write(f"**Total size:** {rag_handler.format_file_size(total_size)}")
+
+                    # Processing button
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        process_btn = st.button("🚀 Process Files", type="primary", key="process_files_btn")
+                    with col2:
+                        clear_btn = st.button("🗑️ Clear", key="clear_upload")
+
+                    if clear_btn:
+                        st.rerun()
+
+                    if process_btn:
+                        with st.spinner("🔐 Processing files securely..."):
+                            # Show security reminder
+                            st.info("🔒 Processing files in memory - no data stored on disk")
+
+                            # Process files
+                            try:
+                                results = rag_handler.process_uploaded_files(uploaded_files)
+
+                                # Show results
+                                if results['successful_files'] > 0:
+                                    st.success(f"✅ Successfully processed {results['successful_files']} files!")
+                                    st.info(f"📊 Total chunks created: {results['total_chunks']}")
+
+                                if results['failed_files'] > 0:
+                                    st.error(f"❌ {results['failed_files']} files failed to process")
+
+                                # Show warnings
+                                if results['warnings']:
+                                    st.warning("⚠️ Warnings:")
+                                    for warning in results['warnings']:
+                                        st.write(f"- {warning}")
+
+                                # Show errors
+                                if results['errors']:
+                                    st.error("❌ Errors:")
+                                    for error in results['errors']:
+                                        st.write(f"- {error}")
+
+                                # Show detailed results summary (not nested expander)
+                                if results['details']:
+                                    st.write("**📋 Processing Details:**")
+                                    for detail in results['details']:
+                                        status_icon = {'completed': '✅', 'partial': '⚠️', 'failed': '❌'}.get(detail['status'], '❓')
+                                        status_text = f"{status_icon} **{detail['filename']}** - {detail['status']}"
+                                        if detail['chunks'] > 0:
+                                            status_text += f" ({detail['chunks']} chunks)"
+                                        st.write(status_text)
+                                        if detail['error']:
+                                            st.caption(f"❌ {detail['error']}")
+
+                                # Refresh the page to show new files
+                                if results['successful_files'] > 0:
+                                    st.success("🔄 Refreshing to show new files...")
+                                    time.sleep(2)
+                                    st.rerun()
+
+                            except Exception as e:
+                                st.error(f"Processing failed: {str(e)}")
+                else:
+                    st.info("👆 Select PDF files above to get started")
+
             with st.expander("⚠️ Warning: destructive actions"):
                 if st.button("Drop chatlog table"):
                     drop_chatlog_table()
