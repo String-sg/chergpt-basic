@@ -177,7 +177,9 @@ def get_app_title():
             conn.close()
 
 def update_app_title(new_title):
-    conn = connect_to_db()
+    conn = get_connection()
+    # Clear cache when title is updated
+    get_app_title.clear()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
@@ -197,7 +199,9 @@ def update_app_title(new_title):
 
 
 def update_app_description(new_description):
-    conn = connect_to_db()
+    conn = get_connection()
+    # Clear cache when description is updated
+    get_app_description.clear()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
