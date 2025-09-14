@@ -2,8 +2,21 @@
 import psycopg2
 import logging
 import streamlit as st
+from functools import lru_cache
+
+@st.cache_resource
+def get_db_connection():
+    """Get cached database connection using Streamlit's connection pooling"""
+    try:
+        conn = st.connection("neon_db", type="sql", url=st.secrets["DB_CONNECTION"])
+        logging.info("Successfully connected to the database using st.connection")
+        return conn
+    except Exception as e:
+        logging.error(f"Failed to connect to the database: {e}")
+        return None
 
 def connect_to_db():
+    """Legacy function - returns raw psycopg2 connection for backwards compatibility"""
     try:
         conn = psycopg2.connect(st.secrets["DB_CONNECTION"])
         logging.info("Successfully connected to the database. This is NeonDB if you followed the setup instructions")
@@ -11,6 +24,13 @@ def connect_to_db():
     except Exception as e:
         logging.error(f"Failed to connect to the database: {e}")
         return None
+
+def get_connection():
+    """Get connection from pool - preferred method"""
+    db_conn = get_db_connection()
+    if db_conn is None:
+        return None
+    return db_conn._instance
 
 def drop_instructions_table():
     conn = connect_to_db()
@@ -111,8 +131,9 @@ def initialize_db():
             conn.close()
 
 
+@st.cache_data(ttl=300)  # Cache for 5 minutes
 def get_app_description():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return "Default app description here."
@@ -132,8 +153,9 @@ def get_app_description():
         if conn:
             conn.close()
 
+@st.cache_data(ttl=300)  # Cache for 5 minutes
 def get_app_title():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return "Default app title here."
