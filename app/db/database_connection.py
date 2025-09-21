@@ -193,8 +193,6 @@ def get_app_title():
 
 def update_app_title(new_title):
     conn = get_connection()
-    # Clear cache when title is updated
-    get_app_title.clear()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
@@ -206,6 +204,8 @@ def update_app_title(new_title):
             """, (new_title,))
             conn.commit()
             logging.info("App description updated successfully.")
+            # Clear cache only after successful update
+            get_app_title.clear()
     except Exception as e:
         logging.error(f"Error updating app title: {e}")
     finally:
@@ -215,8 +215,6 @@ def update_app_title(new_title):
 
 def update_app_description(new_description):
     conn = get_connection()
-    # Clear cache when description is updated
-    get_app_description.clear()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
@@ -228,6 +226,8 @@ def update_app_description(new_description):
             """, (new_description,))
             conn.commit()
             logging.info("App description updated successfully.")
+            # Clear cache only after successful update
+            get_app_description.clear()
     except Exception as e:
         logging.error(f"Error updating app description: {e}")
     finally:
