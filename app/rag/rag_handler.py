@@ -8,7 +8,7 @@ from typing import List, Tuple, Optional
 import tiktoken
 from openai import OpenAI
 import streamlit as st
-from app.db.database_connection import connect_to_db, get_ingested_files, delete_ingested_file, get_selected_file_ids, get_user_file_selections, update_user_file_selection
+from app.db.database_connection import get_connection, get_ingested_files, delete_ingested_file, get_selected_file_ids, get_user_file_selections, update_user_file_selection
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class RAGHandler:
         Returns list of (content, similarity_score) tuples
         Filters by user's selected files if user_name is provided
         """
-        conn = connect_to_db()
+        conn = get_connection()
         if conn is None:
             logger.error("Failed to connect to database for similarity search")
             return []
@@ -176,9 +176,10 @@ class RAGHandler:
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in economics_keywords)
     
+    @st.cache_data(ttl=120)  # Cache for 2 minutes
     def get_rag_stats(self) -> dict:
         """Get statistics about the RAG database"""
-        conn = connect_to_db()
+        conn = get_connection()
         if conn is None:
             return {"error": "Cannot connect to database"}
         
