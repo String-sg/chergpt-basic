@@ -23,8 +23,6 @@ def get_latest_instructions():
 
 def update_instructions(new_instructions):
     conn = get_connection()
-    # Clear cache when instructions are updated
-    get_latest_instructions.clear()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
@@ -39,6 +37,8 @@ def update_instructions(new_instructions):
             """, (new_instructions,))
             conn.commit()
             logging.info("Instructions updated successfully.")
+            # Clear cache only after successful update
+            get_latest_instructions.clear()
     except Exception as e:
         logging.error(f"Error updating instructions: {e}")
     finally:
