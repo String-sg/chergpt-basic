@@ -4,16 +4,38 @@ import logging
 import streamlit as st
 from functools import lru_cache
 
-@st.cache_resource
-def get_db_connection():
-    """Get cached database connection using Streamlit's connection pooling"""
-    try:
-        conn = st.connection("neon_db", type="sql", url=st.secrets["DB_CONNECTION"])
-        logging.info("Successfully connected to the database using st.connection")
-        return conn
-    except Exception as e:
-        logging.error(f"Failed to connect to the database: {e}")
-        return None
+def get_connection():
+    """Get database connection - uses session state for reuse within same session"""
+    if 'db_connection' not in st.session_state or st.session_state.db_connection is None:
+        try:
+            conn = psycopg2.connect(st.secrets["DB_CONNECTION"])
+            # Test the connection
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+            st.session_state.db_connection = conn
+            logging.info("Successfully created new database connection")
+            return conn
+        except Exception as e:
+            logging.error(f"Failed to connect to the database: {e}")
+            st.session_state.db_connection = None
+            return None
+    else:
+        # Test if connection is still alive
+        try:
+            with st.session_state.db_connection.cursor() as cur:
+                cur.execute("SELECT 1")
+            return st.session_state.db_connection
+        except Exception as e:
+            logging.warning(f"Database connection lost, reconnecting: {e}")
+            # Connection is dead, create a new one
+            try:
+                conn = psycopg2.connect(st.secrets["DB_CONNECTION"])
+                st.session_state.db_connection = conn
+                return conn
+            except Exception as e2:
+                logging.error(f"Failed to reconnect to database: {e2}")
+                st.session_state.db_connection = None
+                return None
 
 def connect_to_db():
     """Legacy function - returns raw psycopg2 connection for backwards compatibility"""
@@ -25,15 +47,8 @@ def connect_to_db():
         logging.error(f"Failed to connect to the database: {e}")
         return None
 
-def get_connection():
-    """Get connection from pool - preferred method"""
-    db_conn = get_db_connection()
-    if db_conn is None:
-        return None
-    return db_conn._instance
-
 def drop_instructions_table():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         st.error("Failed to connect to the database.")
         return
@@ -51,7 +66,7 @@ def drop_instructions_table():
             conn.close()
 
 def initialize_db():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         return
     try:
@@ -221,7 +236,7 @@ def update_app_description(new_description):
 
 def insert_ingested_file(file_name, file_path, file_size, file_hash, status='processing'):
     """Insert a new ingested file record"""
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return None
@@ -246,7 +261,7 @@ def insert_ingested_file(file_name, file_path, file_size, file_hash, status='pro
 
 def update_ingested_file_status(file_id, status, chunks_count=None, error_message=None):
     """Update the status of an ingested file"""
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return False
@@ -277,7 +292,7 @@ def update_ingested_file_status(file_id, status, chunks_count=None, error_messag
 
 def get_ingested_files():
     """Get all ingested files"""
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return []
@@ -310,7 +325,7 @@ def get_ingested_files():
 
 def delete_ingested_file(file_id):
     """Delete an ingested file record and its associated chunks"""
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return False
@@ -341,7 +356,7 @@ def delete_ingested_file(file_id):
 
 def get_user_file_selections(user_name):
     """Get user's file selections with file details"""
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return []
@@ -375,7 +390,7 @@ def get_user_file_selections(user_name):
 
 def update_user_file_selection(user_name, file_id, is_selected):
     """Update user's selection for a specific file"""
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return False
@@ -402,7 +417,7 @@ def update_user_file_selection(user_name, file_id, is_selected):
 
 def get_selected_file_ids(user_name):
     """Get list of file IDs selected by user for RAG queries"""
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return []

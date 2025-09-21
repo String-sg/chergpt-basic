@@ -1,7 +1,7 @@
 import csv
 import io
 import logging
-from app.db.database_connection import connect_to_db
+from app.db.database_connection import get_connection
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import openai
@@ -10,7 +10,7 @@ from openai import OpenAI
 import streamlit as st
 
 def insert_chat_log(prompt, response, conversation_id, user_name=None):
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
@@ -34,7 +34,7 @@ def insert_chat_log(prompt, response, conversation_id, user_name=None):
             conn.close()
 
 def initialize_chatlog_table():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
@@ -75,7 +75,7 @@ def initialize_chatlog_table():
 
 # fetch chatlog
 def fetch_chat_logs():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database for fetching logs.")
         return []
@@ -93,7 +93,7 @@ def fetch_chat_logs():
             conn.close()
 
 def fetch_and_batch_chatlogs():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database for fetching logs.")
         return {}
@@ -136,7 +136,7 @@ def export_chat_logs_to_csv(filename='chat_logs.csv'):
 
 # delete chatlog
 def delete_all_chatlogs():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
@@ -152,7 +152,7 @@ def delete_all_chatlogs():
             conn.close()
 
 def drop_chatlog_table():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
