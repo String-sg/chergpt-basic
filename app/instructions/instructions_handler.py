@@ -1,8 +1,10 @@
 import logging
-from app.db.database_connection import connect_to_db
+import streamlit as st
+from app.db.database_connection import get_connection
 
+@st.cache_data(ttl=60)  # Cache for 1 minute since instructions change less frequently
 def get_latest_instructions():
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return ""
@@ -20,7 +22,7 @@ def get_latest_instructions():
         conn.close()
 
 def update_instructions(new_instructions):
-    conn = connect_to_db()
+    conn = get_connection()
     if conn is None:
         logging.error("Failed to connect to the database.")
         return
@@ -35,6 +37,8 @@ def update_instructions(new_instructions):
             """, (new_instructions,))
             conn.commit()
             logging.info("Instructions updated successfully.")
+            # Clear cache only after successful update
+            get_latest_instructions.clear()
     except Exception as e:
         logging.error(f"Error updating instructions: {e}")
     finally:
