@@ -88,7 +88,7 @@ Before you begin, ensure you have the following:
 ```toml
 OPENAI_API_KEY = "your_api_key_here"
 DB_CONNECTION_STRING = "your_neondb_string_here"
-ADMIN_PASSWORD = "set_this_to_what_you_want"
+ADMIN_PASSWORD = "your_secure_admin_password_here"
 GLOBAL_PASSWORD = "optional_password_here"
 ```
 
@@ -281,7 +281,7 @@ Then:
 
 1. Create a **Streamlit account** (free).  
 2. Connect your **GitHub account**.
-3. Fork the repo → `String-sg/Chergpt-basic`.  
+3. Fork the repo → `String-sg/chergpt-basic`.  
 4. In **Advanced Settings → Secrets.toml**, paste:  
 
    ```toml
